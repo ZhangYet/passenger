@@ -2,4 +2,4 @@
 #+OPTIONS: ^:nil
 #+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
 
-
+#+INCLUDE: "./chap07_memory.org" :minlevel 1
