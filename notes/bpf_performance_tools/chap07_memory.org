@@ -1,0 +1,6 @@
+* FLEETING Memery                                                :BPF:memory:
+** FLEETING Background
+
+libc 的内存创建出来之后，会保存在堆里。申请的内存被释放之后，libc 只会把它标识为可用。当堆的空间不够时，libc 会扩大堆，一般不会缩小堆。
+
+kernel 和处理器通常都用页来管理内存。kernel 会使用 slab allocator —— 高速缓存。
