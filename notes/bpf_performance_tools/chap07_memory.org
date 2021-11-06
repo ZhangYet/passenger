@@ -1,6 +1,40 @@
-* FLEETING Memery                                                :BPF:memory:
+* FLEETING Memory                                                :BPF:memory:
 ** FLEETING Background
+*** PERMANENT memory allocator
+    CLOSED: [2021-11-06 六 20:20]
+ libc 的内存创建出来之后，会保存在堆里。申请的内存被释放之后，libc 只会把它标识为可用。当堆的空间不够时，libc 会扩大堆，一般不会缩小堆。
 
-libc 的内存创建出来之后，会保存在堆里。申请的内存被释放之后，libc 只会把它标识为可用。当堆的空间不够时，libc 会扩大堆，一般不会缩小堆。
+ kernel 和处理器通常都用页来管理内存。kernel 会使用 slab allocator —— 高速缓存。
+*** PERMANENT pages and swapping :brk:mmap:page_fault:RSS:kswapd:swapping:mmu:
+    CLOSED: [2021-11-06 六 23:22]
+内存页的生存周期：
 
-kernel 和处理器通常都用页来管理内存。kernel 会使用 slab allocator —— 高速缓存。
+1. 应用申请内存（如 ~mallco()~ ）;
+2. 如果有足够的空间，直接分配，如果没有扩大虚拟内存，或者使用 [[file:~/Repos/passenger/notes/tlpi/chap07.org::*~brk()~%20%E5%92%8C%20~sbrk()~][brk()]] 扩大堆的空间，或者使用 [[file:~/Repos/passenger/notes/tlpi/chap49.org::*%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84][mmap()]] 创建新的内存段（[[file:~/Repos/passenger/notes/wiki/mmap.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Mmap%5D%5Bmmap%5D%5D][mmap 会用在某些 malloc 调用中]]）；
+3. 应用尝试使用内存，MMU（将虚拟内存地址转换成物理内存），[[file:~/Repos/passenger/notes/wiki/mmu.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Memory_management_unit%5D%5Bmmu%5D%5D][MMU]] 发现虚拟内存地址还没有映射，会出发 page fault;
+4. 内核捕捉到 [[file:~/Repos/passenger/notes/wiki/page_fault.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Page_fault%5D%5Bpage%20fault%5D%5D][page fault]]，创建映射，扣减 [[file:~/Repos/passenger/notes/wiki/rss.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Resident_set_size%5D%5BRSS%5D%5D][RSS]];
+5. 如果有太多的内存请求，内核会使用 page-out 进程(kswapd)释放一部分页面：a) 从硬盘读取没有被修改的文件系统页，直接释放；b) 被修改过的文件系统页，在释放之前必须被写回去； c) 应用内存页，如果有 swap 设备，那么这些内存页会先被写到 swap 设备。写入 swap device 就是 swapping.
+*** FLEETING page-out daemon                                         :kswapd:
+kswapd 会定期扫描释放，它会在可用内存处于低水位的时候被唤醒。通常不会影响程序性能，但是如果到达 min page 阈值，那么会 block 进程，显式请求内存回收。
+*** FLEETING swap device
+Swap device 提供了系统内存耗尽的降级方案。进程还是可以申请内存，但是被用得较少的内存会被移到 swap device ,这会降低程序速度。如果系统没有 swap 机制，内核借助 OOM killer 杀死进程。
+*** FLEETING OOM killer
+OOM killer 是释放内存的极手段，会采用一种启发式方法找到要杀的进程，尽量保证对系统的影响最小。
+*** page compaction
+系统通过特定的进程将碎片化的可用内存合并起来。
+*** FLEETING file system caching and buffering                 :cache:buffer:
+Linux 会用空闲内存作为文件系统缓存，启动时这些缓存会被刷掉，所以系统启动的时候可能会因此消耗大量的内存（甚至用光）。
+*** FLEETING 综述
+因为申请内存的事件发生得太频繁了，导致即使是 BPF 程序也会带来可见的性能耗损。我们可以用一些调用频次较低的事件作为观察的窗口：page fault, page out, ~brk()~ 和 ~mmap()~ 等。
+
+如果我们想追踪 ~malloc()~ 的调用者，我们可以抽样调查 CPU 的调用栈，从 CPU 火焰图（此处该有引用）中追踪 ~malloc()~ 的调用栈。
+*** FLEETING 策略
+1. 查 dmesg 日志看系统有没有调用 OOM killer。
+2. 查看有没有 swap device，在检查这些 device 是否有 I/O：出现 swap I/O 说明内存压力大；
+3. 检查释放内存的情况，如 free.
+4. 检查每个进程的内存使用。如 top 和 ps。
+5. 检查 page fault 的比例和 stack trace page faults, 这个策略可以解释 RSS 变化。
+6. 检查支持 page fault 的文件。
+7. 追踪 ~brk()~ 和 ~mmap()~ 的使用。
+
+

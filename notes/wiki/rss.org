@@ -1,0 +1,5 @@
+* PERMANENT [[https://en.wikipedia.org/wiki/Resident_set_size][RSS]]
+  CLOSED: [2021-11-06 六 23:22]
+
+RSS 是常驻内存集（Resident Set Size），表示该进程分配的内存大小。不包括进入交换分区的内存。
+

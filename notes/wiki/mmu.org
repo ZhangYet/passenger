@@ -1,0 +1,20 @@
+* FLEETING [[https://en.wikipedia.org/wiki/Memory_management_unit][mmu]]                                                  :mmu:TLB:PTE:
+
+mmu 负责讲虚拟内存地址翻译成物理内存地址。
+
+mmu 以页组织内存，大部分 mmu 使用页表（需要引用），每一页内存都有对应的 PTE(page table entry)。
+
+PTE 将虚拟内存 number 映射成物理内存 number。TLB(translation lookaside buffer)是 PTE 的缓存。物理内存 number 与 page offset 一起可以算出物理内存地址。
+
+PTE 还有如下内容：
+
+1. 内存页是否修改过(dirty);
+2. 上次使用的时间（用于基于 LRU 的内存页替换算法）；
+3. 哪一种进程（用户进程或者内核进程）能读写这一页内存；
+4. 这一页内存能否被缓存；
+
+如果 PTE 被禁止访问某个虚拟页面，可能是因为还没有物理内存分配给该虚拟页面，此时 mmu 出发一个[[file:page_fault.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Page_fault%5D%5Bpage%20fault%5D%5D][页错误]]。kernel 会处理这个异常。
+
+** FLEETING mmu 的好处
+
+** FLEETING x86-64 的 mmu
