@@ -1,0 +1,3 @@
+#+TITLE: Understanding the linux virtual memory manager 笔记
+#+OPTIONS: ^:nil
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
