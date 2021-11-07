@@ -42,5 +42,25 @@ Linux 会用空闲内存作为[[https://www.kernel.org/doc/html/latest/filesyste
 5. 检查 page fault 的比例和 stack trace page faults, 这个策略可以解释 RSS 变化。
 6. 检查支持 page fault 的文件。
 7. 追踪 ~brk()~ 和 ~mmap()~ 的使用。
+** FLEETING Traditional Tools
+*** PERMANENT kernel log                                              :dmesg:
+    CLOSED: [2021-11-07 日 23:39]
+~dmesg~ 输出的日志中，OOM Killer 会给出形如 `Out of memory: Kill process 23409(perl) score 329 or sacrifice child` 的日志。还会给出系统级别的内存使用量以及 RSS。
+*** FLEETING kernel statistics
+**** PERMANENT swapon                                                  :swap:
+     CLOSED: [2021-11-07 日 23:42]
+如果 ~swapon~ 没有输出，说明没有配置 swap device, 如果有，会给出挂载点和使用量。
+**** free                                                              :free:
+~free~ 给出系统当前已经使用和空闲的内存容量。注意区分 available 列和 free 列，前者表示「可用」的内存（包括文件缓存），后者表示「完全未被使用」的内存。buff/cache 列表示文件系统缓存页。
 
+~free -m~ 用 M 作单位。 ~free -mw~ 用 M 作单位且区分 buffer 和 cache。
+**** FLEETING ps                                                         :ps:
+值得关注的是三列：
 
+1. %MEM
+2. VSZ
+3. RSS
+
+~ps -eo pid,pmem,vsz, rss~
+**** FLEETING pmap
+~pmap -x pid~ 注意非本用户的进程需要 sudo 权限，这个命令显示被载入的库和文件映射占用的内存。
