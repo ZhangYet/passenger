@@ -50,7 +50,8 @@ Linux 会用空闲内存作为[[https://www.kernel.org/doc/html/latest/filesyste
 **** PERMANENT swapon                                                  :swap:
      CLOSED: [2021-11-07 日 23:42]
 如果 ~swapon~ 没有输出，说明没有配置 swap device, 如果有，会给出挂载点和使用量。
-**** free                                                              :free:
+**** PERMANENT free                                                    :free:
+     CLOSED: [2021-11-09 二 23:39]
 ~free~ 给出系统当前已经使用和空闲的内存容量。注意区分 available 列和 free 列，前者表示「可用」的内存（包括文件缓存），后者表示「完全未被使用」的内存。buff/cache 列表示文件系统缓存页。
 
 ~free -m~ 用 M 作单位。 ~free -mw~ 用 M 作单位且区分 buffer 和 cache。
@@ -64,3 +65,17 @@ Linux 会用空闲内存作为[[https://www.kernel.org/doc/html/latest/filesyste
 ~ps -eo pid,pmem,vsz, rss~
 **** FLEETING pmap
 ~pmap -x pid~ 注意非本用户的进程需要 sudo 权限，这个命令显示被载入的库和文件映射占用的内存。
+**** FLEETING vmstat
+~vmstat 1~ 每秒扫一次。
+
+1. free, buff, cache: free 的内存 ，用于存储 I/O buffer 的内存，用于文件系统缓存的内存。
+2. si, so 与 swap 空间换入换出的内存。
+
+第一行是启动以来的平均。其余的都是实时状态。
+**** FLEETING sar
+~sar -B 1~ 展示内存页统计。这个工具的统计量比较多，而且难读，本书没有提供足够的理解，需要从 man page 补充。主要关注 fault/s 这个指标，它统计了 page fault 发生的频率。
+*** SKIP hardware statistics
+** BPF Tools
+*** FLEETING oomkill
+安装了 0.12.0-2 版本的 bpfcc-tools， 这个版本的 ~oomkill~ 被命名为 ~oomkill-bpfcc~ 。
+
