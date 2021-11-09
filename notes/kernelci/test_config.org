@@ -1,0 +1,16 @@
+* FLEETING test config
+
+  ~test-config.yaml~ 里面定义了如下的 section:
+
+  1. file systems
+  2. device types
+  3. test plan: 一组测试方案；
+  4. test configuration: 以上一切的组合
+
+  除此之外，还有各种 filter。
+
+** add device type
+
+   
+
+
