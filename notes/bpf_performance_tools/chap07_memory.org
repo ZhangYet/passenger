@@ -79,3 +79,76 @@ Linux 会用空闲内存作为[[https://www.kernel.org/doc/html/latest/filesyste
 *** FLEETING oomkill
 安装了 0.12.0-2 版本的 bpfcc-tools， 这个版本的 ~oomkill~ 被命名为 ~oomkill-bpfcc~ 。
 
+这个工具可以监控到进程 A 因为内存需要杀死进程 B ，并记录进程 B 使用了多少内存页，以及触发 OOM 时候的系统负载。
+
+#+BEGIN_SRC c
+#!/usr/local/bin/bpftrace
+
+#include <linux/oom.h>
+
+BEGIN 
+{
+    printf("Tracing oom_kill_process()... Hit Ctrl-C to end.\n");
+}
+
+kprobe:oom_kill_process // ? what is a kprobe
+{
+    $oc = (struct oom_control *) args1; // ? how to invoke an struct
+    time(%H:%M:%S);
+    printf("Trigger by PID %d (\"%s\"), ",  pid, comm); // ? where did pid and comm come from
+    printf("OOM kill of PID PID %d (\"%s\"), %d pages, loadavg: ", 
+        $oc->chosen->pid, $oc->chosen->comm, $oc->totalpages);
+    cat("/proc/loadavg");
+    
+}
+#+END_SRC
+
+~oom_kill~ 主要就是监控 ~kprobe:oom_kill_process~ , ~oom_kill_process()~ 的第二个参数是 ~struct oom_control~ 这个结构体有被牺牲进程的细节。
+*** FLEETING memleak
+首先这个工具的名字也有变化： ~memleak-bpfcc~.
+
+然后 ~memleakbpfcc -p 556~ 可以只监控进程556的情况。
+
+看不太懂它的输出。
+*** SKIP mmapsnoop
+(ubuntu 上 0.12.0-2 的 bpfcc-tools 找不到这个工具)。
+*** FLEETING brkstack
+追踪 ~brk()~ 以追踪程序堆的增长。
+
+~trace-bpfcc -U t:syscalls:sys_enter_brk~ 会输出 PID, TID, COMM, FUNC 四列。
+
+~stackcount-bpfcc -PU t:syscalls:sys_enter_sbrk~ 会列出调用 ~brk()~ 和 ~sbrk()~ 的调用栈和调用次数。但是有时候它会断掉，我们无法追踪具体的调用链。
+
+~brk()~ 调用的频率不高，所以跟踪它往往比跟踪 ~malloc()~ 划算。
+
+~brkstack()~ 的 bpftrace 实现。
+
+#+BEGIN_SRC c
+#!/usr/local/bin/bpftrace
+
+tracepoint:syscalls:sys_enter_brk
+{
+    @[ustack, comm] = count(); // ? what grammer
+}
+#+END_SRC
+*** SKIP shmsnoop
+用于 System V 所以我们跳过。
+*** FLEETING faults
+跟踪页错误的意义在于：页错误会导致 RSS 增长，它可以解释进程占用的内存为什么增长。
+
+常用的 one-liner:
+
+~stackcount-bpfcc -U t:exceptions:page_fault_user~
+
+~stackcount-bpfcc -U t:exceptions:page_fault_kernel~
+
+bpftrace 实现：
+
+#+BEGIN_SRC c
+#!/usr/local/bin/bpftrace
+
+software:page-faults:1 // ? what does 1 mean?
+{
+    @[ustack, comm] = count();
+}
+#+END_SRC
