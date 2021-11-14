@@ -1,1 +1,19 @@
-* FLEETING [[https://en.wikipedia.org/wiki/Page_fault][page fault]]
+* PERMANENT [[https://en.wikipedia.org/wiki/Page_fault][page fault]]                                               :memory:
+  CLOSED: [2021-11-14 日 22:33]
+当用户想访问内存页面，但是对应的内存页面还没有准备好，[[file:mmu.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Memory_management_unit%5D%5Bmmu%5D%5D][mmu]] 就会抛出一个异常，这个异常就是 page fault。所谓「准备好」，有两方面含义，一方面要访问的页面需要加到核的虚拟地址空间中，另一方面，页面的内容也需要准备好（比如从磁盘载入）。
+
+mmu 负责抛出这个异常，而内核负责处理这个异常：或者把对应的内存页准备好，或者拒绝访问。
+
+page fault 主要有三种：minor, majoy, invalid 。
+
+** minor
+这种 page fault 往往出现在共享内存的情况：页面已经载入内存中，但是 mmu 没有把它标识为 loaded，那 page fault handler 只需要把页面指向对应的内存，并让 mmu 把它标识为 loaded 即可。
+
+** major
+这是操作系统增加进程可用内存的机制。操作系统会延迟载入程序的一部分，知道遇到页面错误。handler 会找到空闲的位置：或者是无用的内存页，或者是被其他进程使用的内存页。后者需要进一步处理（把内存中的数据清理出）。然后在进程的内存页表中把内存页标识为 unloaded, 然后再把它载入并把对应的记录写入 mmu 里面。
+
+** invalid
+如果访问不可访问的地址，mmu 抛出非法的 page fault。 这就是段错误的来源了。
+
+** performance impact                                           :performance:
+如果 major page fault 过多，当然会导致性能问题（毕竟要读写硬盘）。解决之道就是增加内存，增加 locality, 减少整体内存使用。[[https://en.wikipedia.org/wiki/Page_replacement_algorithm][Page replacement algorithm]] 能高内存命中率，减少 page fault.

@@ -1,10 +1,12 @@
-* FLEETING livepatch
+* ORGANIZING livepatch                                         :livepatching:
 
 ** PERMANENT Motivation
    CLOSED: [2021-11-13 六 23:53]
-就是为了不重启打补丁。
+   就是为了不重启打补丁。
 
-** FLEETING Kprobes, Ftrace, Livepatching
+
+** ORGANIZING Kprobes, Ftrace, Livepatching                   :kprobe:ftrace:
+
 livepatching 的关键就是 code redirection，就是运行到某一点的时候绕开，运行另一段代码，主要有三种方法：
 
 1. kernel probes: 插一个断点实现 code redirection;
@@ -12,7 +14,7 @@ livepatching 的关键就是 code redirection，就是运行到某一点的时�
 3. livepatching 需要在函数参数或者栈改变之前开始作用;
 
 三种方法[fn:1]需要在运行时修改执行的代码。解决 code redirection 问题的方案大部分以动态 ftrace 框架为基础。Kprobe 被注册成 function entry 被探知时执行的 ftrace handler 。 live patch 中的函数也会在定制的 ftrace hanlder 帮助下被调用。
-** FLEETING Consistency Model
+** FLEETING Consistency Model                             :consistency_model:
 最好的一种 patching 是自洽的：只修改某个函数的逻辑，不影响其他函数，不改变语义。
 
 但是考虑到更复杂的情况：patching 之后的函数会改变锁的顺序，或者改变某些临时结构体的含义并影响其他参数。这个时候，被影响的单位（可能是 thread 也可能是整个 kernel）需要同时用新版本或者同时用旧版本。
@@ -39,8 +41,23 @@ Livepatching 的 consistency model 混合了 kGraft 的 per-task consistency 与
 
 还有 ~/sys/kernel/livepatch/<patch>/force~ 这个可以解决[fn:2]的问题。但是要慎用。
 *** SKIP Adding consistency model support to new architectures
+** FLEETING Livepatching Model    
+*** FLEETING new functions                                          :TO_LINK:
+命名的时候最好跟 patched 前的函数区分一下，也可以定义为静态函数，毕竟需要全局可见。最麻烦的地方在于：万一新函数需要调用一些原来的源代码定义的局部的东西。后面的 ELF 格式【此处应该有链接】会讲到。
+*** FLEETING metadata                         :klp_func:klp_object:klp_patch:
+每个 patch 由三层数据结构表示：
 
+1. ~klp_func~ 定义了每个被 patched 的函数。它描述了原来的函数和新实现的函数之间的关系。它包括新函数的名字(string)，运行时，新函数的地址会通过 kallsyms(全局符号表)【此处应有链接】找到。此外，它包括新函数的地址（一个函数指针）[fn:3]。可选的参数是在 kallsyms 数据库里面的位置。
+2. ~klp_object~ 在对象中定义了一个包含 ~klp_func~ 的数组。这个对象可能是 vmlinux 也可能是一个 module 名[fn:4]。注意到被 patched 的 module 可能会在 patch 之后载入。
+3. ~klp_patch~ 定义了 ~klp_object~ 的数组。只有当所有的符号都在 kallsyms 里面找到，它才会生效。
+** FLEETING Livepatch life-cycle
+五个基本动作: loading, enabling, replacing, disabling, removing.
+*** FLEETING loading
 * Footnotes
+
+[fn:4] 这给我整不明白了，为什么 module name 可以跟 vmlinux 放在一起说啊。 
+
+[fn:3] 前面不是说要从 kallsyms 里面找了吗？ 
 
 [fn:2] 如果有两个 patch 要打，前面一个就死活卡在 in transition ，我们是不是只能杀进程了？ 
 

@@ -80,7 +80,8 @@ Linux 会用空闲内存作为[[https://www.kernel.org/doc/html/latest/filesyste
 
 ~sar~ 太复杂了，还是得看 [[file:~/Repos/passenger/notes/man/sar.org::*sar][sar 的 man page]]。
 *** SKIP hardware statistics
-** ORGANIZING BPF Tools
+** PERMANENT BPF Tools
+   CLOSED: [2021-11-14 日 22:34]
 *** PERMANENT oomkill
     CLOSED: [2021-11-14 日 15:55]
 安装了 0.12.0-2 版本的 bpfcc-tools， 这个版本的 ~oomkill~ 被命名为 ~oomkill-bpfcc~ 。
@@ -112,7 +113,8 @@ kprobe:oom_kill_process // ? what is a kprobe
 #+END_SRC
 
 ~oom_kill~ 主要就是监控 ~kprobe:oom_kill_process~ , ~oom_kill_process()~ 的第二个参数是 ~struct oom_control~ 这个结构体有被牺牲进程的细节。
-*** FLEETING memleak
+*** SKIP memleak                                              :memleak:stack:
+    CLOSED: [2021-11-14 日 19:27]
 首先这个工具的名字也有变化： ~memleak-bpfcc~.
 
 然后 ~memleakbpfcc -p 556~ 可以只监控进程556的情况。
@@ -120,14 +122,15 @@ kprobe:oom_kill_process // ? what is a kprobe
 看不太懂它的输出。
 *** SKIP mmapsnoop
 (ubuntu 上 0.12.0-2 的 bpfcc-tools 找不到这个工具)。
-*** FLEETING brkstack
+*** PERMANENT brkstack
+    CLOSED: [2021-11-14 日 19:32]
 追踪 ~brk()~ 以追踪程序堆的增长。
 
 ~trace-bpfcc -U t:syscalls:sys_enter_brk~ 会输出 PID, TID, COMM, FUNC 四列。
 
 ~stackcount-bpfcc -PU t:syscalls:sys_enter_sbrk~ 会列出调用 ~brk()~ 和 ~sbrk()~ 的调用栈和调用次数。但是有时候它会断掉，我们无法追踪具体的调用链。
 
-~brk()~ 调用的频率不高，所以跟踪它往往比跟踪 ~malloc()~ 划算。
+~brk()~ 调用的频率不高，所以跟踪它往往比跟踪 ~malloc()~ 划算。我们可以直接使用 [[file:chap02_technology_background.org::*Tracepoints][Tracepoints]] 来跟踪。
 
 ~brkstack()~ 的 bpftrace 实现。
 
@@ -141,7 +144,8 @@ tracepoint:syscalls:sys_enter_brk
 #+END_SRC
 *** SKIP shmsnoop
 用于 System V 所以我们跳过。
-*** FLEETING faults
+*** PERMANENT faults
+    CLOSED: [2021-11-14 日 22:33]
 跟踪页错误的意义在于：页错误会导致 RSS 增长，它可以解释进程占用的内存为什么增长。
 
 常用的 one-liner:

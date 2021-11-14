@@ -1,2 +1,4 @@
 * FLEETING Technology Background
 ** FLEETING kprobe 
+** FLEETING Tracepoints
+tracepoint 是 kernel 静态指令，由 kernel 开发者维护，数量比较少。
