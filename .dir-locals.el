@@ -1,1 +1,1 @@
-(setq org-agenda-files ("."))
+(nil . ((org-agenda-files . ".")))

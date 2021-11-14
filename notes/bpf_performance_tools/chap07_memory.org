@@ -1,5 +1,4 @@
-* PERMANENT Memory                                               :BPF:memory:
-  CLOSED: [2021-11-14 日 15:12]
+* ORGANIZING Memory                                              :BPF:memory:
 ** PERMANENT Background
    CLOSED: [2021-11-07 日 01:26]
 *** PERMANENT memory allocator
@@ -81,11 +80,14 @@ Linux 会用空闲内存作为[[https://www.kernel.org/doc/html/latest/filesyste
 
 ~sar~ 太复杂了，还是得看 [[file:~/Repos/passenger/notes/man/sar.org::*sar][sar 的 man page]]。
 *** SKIP hardware statistics
-** FLEETING BPF Tools
-*** FLEETING oomkill
+** ORGANIZING BPF Tools
+*** PERMANENT oomkill
+    CLOSED: [2021-11-14 日 15:55]
 安装了 0.12.0-2 版本的 bpfcc-tools， 这个版本的 ~oomkill~ 被命名为 ~oomkill-bpfcc~ 。
 
 这个工具可以监控到进程 A 因为内存需要杀死进程 B ，并记录进程 B 使用了多少内存页，以及触发 OOM 时候的系统负载。
+
+这个脚本会监听 [[file:chap02_technology_background.org::*kprobe][kprobe]] ~oom_kill_process~ 。 ~#include~ 引用内核的头文件是 bpftrace 的能力，这样我们可以拿到内核定义的结构体。args1 是内置变量，见本书5.9章【此处应该有一个链接，但是我还没有整理5.9的笔记】。
 
 #+BEGIN_SRC c
 #!/usr/local/bin/bpftrace
