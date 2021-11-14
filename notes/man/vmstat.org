@@ -1,0 +1,62 @@
+* PERMANENT vmstat
+  CLOSED: [2021-11-14 日 15:00]
+~vmstat~ 主要用途是统计 virtual memory 相关数据。
+
+从用途上区分， ~vmstat~ 有如下用途：
+1. ~-m~: 展示 slab 的信息，需要 root 权限; (slab mode)
+2. ~-d~: 展示 disk 的统计；(disk mode)
+3. ~-p~: 展示分区相关的信息；(dist partition mode)
+4. 普通的 virtual memory 信息；(VM mode)
+
+有些特殊的选项：
+1. ~-S, --unit~: 内存的单位;
+2. ~-t, --timestamp~: 加个时间戳;
+3. ~-s, --stats~: 汇总统计量；
+4. ~-D, --disk-sum~: disk 活动相关的汇总统计;
+
+VM mode 展示的信息：
+1. proc
+   a. r: runnable 进程的数量；
+   b. b: uninterruptible slee 进程的数量；
+2. Memory
+   a. swpd: virtual memory 使用的量；
+   b. free: 空闲 memory 的数量；
+   c. buff: 用作 buff 的 memroy 的数量；
+   d. cache: 用作 cache 的 memory 的数量；
+   e: inact: inactive memory 的数量；(~-a~)
+   f: active: active memory 的数量；(~-a~)
+4. Swap
+   a. si: 每秒换入的 memory 的数量；
+   b. so: 每秒唤出的 memory 的数量；
+5. IO
+   a. bi: 从 block device 收到的 block 数量(blocks/s);
+   b. bo: 发送到 block device 的 block 数量(blocks/s);
+6. System
+   a. in: 每秒 interrupt 的数量（包括时钟）；
+   b. cs: 每秒上下文切换的次数；
+7. CPU
+   a. us: 运行 non-kernel code 的时间（包括 nice time[fn:1]）;
+   b. sy: 运行 kernel code 的时间；
+   c. id: idle 时间；
+   d. wa: 等待 IO 的时间；
+   e. st: 从 virtual machine 偷来的时间[fn:2]；
+
+Disk mode 提供的信息：
+1. Reads
+   a. total;
+   b. merged: grouped reads；
+   c. ms: 读的计时；
+2. Writes
+   a. total;
+   b. merged;
+   c. sectors: 成功写了多少扇区;
+   d. ms;
+3. IO
+   a. cur: 当前 I/O 的数量；
+   b. I/O 消耗的时间；
+Disk partition mode 和 slab mode 就跳过了
+* Footnotes
+
+[fn:2] Stolen time: https://scoutapm.com/blog/understanding-cpu-steal-time-when-should-you-be-worried
+
+[fn:1] The nice time is then the amount of time cpu spent on running tasks which have set the nice value. see [[https://www.quora.com/In-Linux-what-is-nice-time][this quora answer]]. 

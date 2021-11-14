@@ -1,4 +1,5 @@
-* FLEETING Memory                                                :BPF:memory:
+* PERMANENT Memory                                               :BPF:memory:
+  CLOSED: [2021-11-14 日 15:12]
 ** PERMANENT Background
    CLOSED: [2021-11-07 日 01:26]
 *** PERMANENT memory allocator
@@ -42,11 +43,13 @@ Linux 会用空闲内存作为[[https://www.kernel.org/doc/html/latest/filesyste
 5. 检查 page fault 的比例和 stack trace page faults, 这个策略可以解释 RSS 变化。
 6. 检查支持 page fault 的文件。
 7. 追踪 ~brk()~ 和 ~mmap()~ 的使用。
-** FLEETING Traditional Tools
+** PERMANENT Traditional Tools
+   CLOSED: [2021-11-14 日 15:12]
 *** PERMANENT kernel log                                              :dmesg:
     CLOSED: [2021-11-07 日 23:39]
 ~dmesg~ 输出的日志中，OOM Killer 会给出形如 `Out of memory: Kill process 23409(perl) score 329 or sacrifice child` 的日志。还会给出系统级别的内存使用量以及 RSS。
-*** FLEETING kernel statistics
+*** PERMANENT kernel statistics
+    CLOSED: [2021-11-14 日 15:12]
 **** PERMANENT swapon                                                  :swap:
      CLOSED: [2021-11-07 日 23:42]
 如果 ~swapon~ 没有输出，说明没有配置 swap device, 如果有，会给出挂载点和使用量。
@@ -55,27 +58,30 @@ Linux 会用空闲内存作为[[https://www.kernel.org/doc/html/latest/filesyste
 ~free~ 给出系统当前已经使用和空闲的内存容量。注意区分 available 列和 free 列，前者表示「可用」的内存（包括文件缓存），后者表示「完全未被使用」的内存。buff/cache 列表示文件系统缓存页。
 
 ~free -m~ 用 M 作单位。 ~free -mw~ 用 M 作单位且区分 buffer 和 cache。
-**** FLEETING ps                                                         :ps:
+**** PERMANENT ps                                                        :ps:
+     CLOSED: [2021-11-14 日 13:23]
 值得关注的是三列：
 
-1. %MEM
-2. VSZ
-3. RSS
+1. %MEM 该进程使用的物理内存的比例；
+2. VSZ 虚拟内存大小；
+3. RSS Resident set size 该进程实际占用的总物理内存；
 
 ~ps -eo pid,pmem,vsz, rss~
-**** FLEETING pmap
+**** PERMANENT pmap
+     CLOSED: [2021-11-14 日 14:29]
 ~pmap -x pid~ 注意非本用户的进程需要 sudo 权限，这个命令显示被载入的库和文件映射占用的内存。
-**** FLEETING vmstat
-~vmstat 1~ 每秒扫一次。
 
-1. free, buff, cache: free 的内存 ，用于存储 I/O buffer 的内存，用于文件系统缓存的内存。
-2. si, so 与 swap 空间换入换出的内存。
-
-第一行是启动以来的平均。其余的都是实时状态。
-**** FLEETING sar
+这个命令太细致了，会列出所有的 mapping，包括起止地点，还有占用的物理内存大小。但是我实在不怎么会用。
+**** PERMANENT vmstat                                                :vmstat:
+     CLOSED: [2021-11-14 日 15:04]
+看 [[file:~/Repos/passenger/notes/man/vmstat.org::*vmstat][man page]] 就好了。
+**** PERMANENT sar
+     CLOSED: [2021-11-14 日 15:12]
 ~sar -B 1~ 展示内存页统计。这个工具的统计量比较多，而且难读，本书没有提供足够的理解，需要从 man page 补充。主要关注 fault/s 这个指标，它统计了 page fault 发生的频率。
+
+~sar~ 太复杂了，还是得看 [[file:~/Repos/passenger/notes/man/sar.org::*sar][sar 的 man page]]。
 *** SKIP hardware statistics
-** BPF Tools
+** FLEETING BPF Tools
 *** FLEETING oomkill
 安装了 0.12.0-2 版本的 bpfcc-tools， 这个版本的 ~oomkill~ 被命名为 ~oomkill-bpfcc~ 。
 
@@ -152,3 +158,4 @@ software:page-faults:1 // ? what does 1 mean?
     @[ustack, comm] = count();
 }
 #+END_SRC
+
