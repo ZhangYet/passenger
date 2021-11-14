@@ -1,0 +1,47 @@
+* FLEETING livepatch
+
+** PERMANENT Motivation
+   CLOSED: [2021-11-13 六 23:53]
+就是为了不重启打补丁。
+
+** FLEETING Kprobes, Ftrace, Livepatching
+livepatching 的关键就是 code redirection，就是运行到某一点的时候绕开，运行另一段代码，主要有三种方法：
+
+1. kernel probes: 插一个断点实现 code redirection;
+2. function tracer: 从靠近函数入口(function entry point)的地方调用一个预定义的函数，需要打开 gcc 的 ~-pg~ 选项；
+3. livepatching 需要在函数参数或者栈改变之前开始作用;
+
+三种方法[fn:1]需要在运行时修改执行的代码。解决 code redirection 问题的方案大部分以动态 ftrace 框架为基础。Kprobe 被注册成 function entry 被探知时执行的 ftrace handler 。 live patch 中的函数也会在定制的 ftrace hanlder 帮助下被调用。
+** FLEETING Consistency Model
+最好的一种 patching 是自洽的：只修改某个函数的逻辑，不影响其他函数，不改变语义。
+
+但是考虑到更复杂的情况：patching 之后的函数会改变锁的顺序，或者改变某些临时结构体的含义并影响其他参数。这个时候，被影响的单位（可能是 thread 也可能是整个 kernel）需要同时用新版本或者同时用旧版本。
+
+Consistency model 就是如何安全地启动 patching（保证都用新版本或者都用旧版本）。
+
+Livepatching 的 consistency model 混合了 kGraft 的 per-task consistency 与 syscall barrier switching 和 kpatch 的 stack trace switching 机制，此外，它还有一些回退机制。
+
+可以的时候 patch 会逐个 task 生效。生效和失效就是进程 patched/unpatched state 的转换。interrupt handler 和子进程都会继承 patched state.
+
+检查是否可以 patch 的方法主要有三种：
+
+1. 检查 sleeping task ，如果它的栈里面没有被影响的函数，就 patch 它。周期性执行直到全部被 patch，它需要 ~HAVE_RELIABLE_STACKTRACE~ 的支持。
+2. 使用 kernel exit switch , 这种方法会在进程从 syscall 中退出到 user space/user space IRC/signal 的时候 patch 。
+3. 使用 ~klp_update_patch_state()~ patch idle "swapper" task ，因为这种 task 不会退出 kernel。
+
+不支持 ~HAVE_RELIABLE_STACKTRACE~ 的系统就只能使用方法2了。这样可能会有很多进程在退出之前都使用旧版本的函数，如果这些进程一直不退出，那就需要我们手动发信号。特别是 kthreads 。如果没法保证 patch threads ，那么一个不支持 ~HAVE_RELIABLE_STACKTRACE~ 的系统不能认为全面支持 livepatching 。
+
+文件 ~/sys/kernel/livepatch/<patch>/transition~ 标识是否有一个 patch in transition , 同一时间只能有一个 patch in transition. [fn:2]
+
+往 ~/sys/kernel/livepatch/<patch>/enabled~ 写入不同的值就能开关 patch 了。
+
+~/proc/<pid>/patch_state~ 有三个值：-1 没有 patch; 0 in transition; 1 patched;
+
+还有 ~/sys/kernel/livepatch/<patch>/force~ 这个可以解决[fn:2]的问题。但是要慎用。
+*** SKIP Adding consistency model support to new architectures
+
+* Footnotes
+
+[fn:2] 如果有两个 patch 要打，前面一个就死活卡在 in transition ，我们是不是只能杀进程了？ 
+
+[fn:1] 但其实我觉得这并不是「三种方法」，就我理解，livepatching 使用 kprobes 和 ftrace 实现的。当然这个理解可能是错的。
