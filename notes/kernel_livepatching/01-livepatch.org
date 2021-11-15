@@ -52,7 +52,35 @@ Livepatching 的 consistency model 混合了 kGraft 的 per-task consistency 与
 3. ~klp_patch~ 定义了 ~klp_object~ 的数组。只有当所有的符号都在 kallsyms 里面找到，它才会生效。
 ** FLEETING Livepatch life-cycle
 五个基本动作: loading, enabling, replacing, disabling, removing.
-*** FLEETING loading
+*** FLEETING loading                                                 :module:
+这里的 loading 应该是指 module loading。 ~klp_enable_patch()~ 会在且仅在 ~module_init()~ 时会调用。这是因为: 1) 只有 module 可以访问 ~klp_patch~ 结构体; 2) patch 出错，可以阻止 module 继续载入。
+*** FLEETING enabling
+~module_init()~ 调用了 ~klp_enable_patch()~ 之后，livepatch 进入 enabled 状态。
+
+第一步：根据新函数的名字找到函数地址，并创建 ~/sys/kernel/livepatch/<name>~ 文件。如果这一步失败了，patch 失败。
+
+第二步：livepatch 进入 transition 状态。原始函数第一次被 patch 的时候，系统会创建一个特别的结构 ~klp_ops~ 并注册一个 ftrace handler（注意同一个函数可能会被 patch 多次，但是 handler 只会注册一次，更多的 entry 就在列表后面增加一个就好了）。并且会在 ~/sys/kernel/livepatch/<name>/transition~ 里面写入1。
+
+第三步：所有 task 都已经 patch， ~/sys/kernel/livepatch/<name>/transition~ 写入0.
+*** FLEETING replacing                                              :TO_LINK:
+看起来是用一个 livepatch 替换另外一个，后面会详细说。
+*** FLEETING disabling
+通过往 ~/sys/kernel/livepatch/<name>/~ 里面写0 disable 一个 livepatch.
+
+首先，livepatch 进入 transition 状态。然后等所有 task 都回退之后， ~/sys/kernel/livepatch/<name>~ 写入0。 ~klp_ops~ 也要进行清理。最后 ~/sys/kernel/livepatch/<name>~ 也会被清理。
+*** FLEETING removing
+强制 patch 不可取之处在于它导致 module 无法安全 remove。
+** FLEETING Sysfs                                                     :sysfs:
+都在 ~/sys/kernel/livepatch~ 下面了。
+
+整理的时候整理下对应的表吧。
+** FLEETING Limitation
+
+1. 只有能被 trace 的函数才能被 patch。另外它不能递归 patch.
+2. 只有 ftrace 是在函数开头起作用，patch 才是可靠的。
+3. kretprobe 跟 patched function 冲突。
+4. 原函数中的 kprobe 会被忽略，因为函数被 redirect 了。
+
 * Footnotes
 
 [fn:4] 这给我整不明白了，为什么 module name 可以跟 vmlinux 放在一起说啊。 
