@@ -1,1 +1,14 @@
 * FLEETING (Un)patching Callbacks
+这些 callback 提供了如下能力：
+
+1. 安全更新全局变量；
+2. 为 init 和 probe 函数打补丁（这句话我确实不理解）；
+3. 为一些不能打 patch 的代码（比如汇编）打 patch;
+** Motivation                                                       :TO_LINK:
+   - Note taken on [2021-11-19 五 00:16] \\
+     括号里面的内容都需要确认。
+(Un)patching callbacks 与 kernel 功能不同在于：
+
+1. disable 和重新 enable patch 的时候，module init/exit 的代码不会重复执行（但是 callbacks 会）。
+2. module notifier【需要链接】不能阻止要被 patch 的 module 载入（但是 callbacks 可以）。
+
