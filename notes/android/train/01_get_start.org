@@ -1,0 +1,14 @@
+* FLEETING [[https://developer.android.com/training/basics/firstapp?hl=zh_cn][构建首个应用]]
+** FLEETING 重要的文件                                  :MainActivity:gradle:
+
+   1. ~app/java/com.example.myfirstapp/MainActivity~: 主程序的入口。
+   2. ~app/res/layout/activity_main.xml~: activity 界面的定义。
+   3. ~app/manifests/AndroidManifest.xml~: 定义了 app 的组件，描述了 app 的特性。
+   4. ~Gradle Scripts/build.gradle~: build 的配置文件。
+** FLEETING 运行应用                                                    :AVD:
+   有两种运行应用的方式：连接测试机和使用虚拟设备。
+
+   参考[[file:~/repos/passenger/notes/android/studio/05_build_and_run.org::*在模拟器上运行应用][在模拟器上运行应用]]里面的方法，创建一个 AVD，然后选择一个合适的 AVD 点击 run。
+
+** FLEETING 构建界面
+   Android 界面就是一颗 ViewGroup 树，叶子是 View.

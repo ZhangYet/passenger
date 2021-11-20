@@ -1,0 +1,3 @@
+* FLEETING 编译与运行您的应用
+** FLEETING 在模拟器上运行应用                                          :AVD:
+   在 tools -> AVD manager 里面创建模拟设备。
