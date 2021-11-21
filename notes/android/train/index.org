@@ -3,3 +3,4 @@
 #+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
 
 #+INCLUDE: "./01_get_start.org" :minlevel 1
+#+INCLUDE: "./02_basic_knowledge.org" :minlevel 1

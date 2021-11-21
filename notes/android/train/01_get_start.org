@@ -1,14 +1,29 @@
-* FLEETING [[https://developer.android.com/training/basics/firstapp?hl=zh_cn][构建首个应用]]
-** FLEETING 重要的文件                                  :MainActivity:gradle:
+* PERMANENT [[https://developer.android.com/training/basics/firstapp?hl=zh_cn][构建首个应用]]                                            :TO_LINK:
+  在这个 Hello World 应用里面，我们使用 Android Studio 创建了一个包含两个 Activity 的应用。
+
+  首先我们用 Design 页面定义了主 activity 两个组件：一个文本输入框和一个按钮。我们还用 Chain 把两个组件关联起来，然后调整并限制它们的位置（到边沿的距离）。
+
+  然后我们在 MainActivity 类里面定义了一个 ~sendMessage~ 方法。在设计页面，我们为按钮的 onClick 事件选择这个 ~sendMesssage~ 方法。
+
+  ~sendMessage()~ 方法里面，我们首先会通过 ~findViewById~ 函数，找到对应文本输入框的 view，然后读取里面的内容，通过 ~putExtra~ 保存到新创建的 ~Intent~ 实例里面。最后用这个 ~Intent~ 实例 ~startActivity~ 。
+
+  总结主要流程：
+
+  1. 设计界面，安排组件；
+  2. 为组件实现方法；
+  3. 用 ~Intent~ 交换组件之间的数据；
+** Permanent 重要的文件                                 :MainActivity:gradle:
 
    1. ~app/java/com.example.myfirstapp/MainActivity~: 主程序的入口。
    2. ~app/res/layout/activity_main.xml~: activity 界面的定义。
    3. ~app/manifests/AndroidManifest.xml~: 定义了 app 的组件，描述了 app 的特性。
    4. ~Gradle Scripts/build.gradle~: build 的配置文件。
-** FLEETING 运行应用                                                    :AVD:
+** PERMANENT 运行应用                                                   :AVD:
    有两种运行应用的方式：连接测试机和使用虚拟设备。
 
    参考[[file:~/repos/passenger/notes/android/studio/05_build_and_run.org::*在模拟器上运行应用][在模拟器上运行应用]]里面的方法，创建一个 AVD，然后选择一个合适的 AVD 点击 run。
 
-** FLEETING 构建界面
+** PERMANENT 构建界面
    Android 界面就是一颗 ViewGroup 树，叶子是 View.
+
+   我们可以在 Android Studio 里面通过拖拽，定义我们需要的组件。当然，也可以用 app/res/layout/*.xml 来定义对应 activity 的组件。
