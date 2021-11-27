@@ -1,0 +1,40 @@
+* FLEETING kci_core 源代码笔记
+  ~kci_core~ 负责更新元数据、编译、上传编译结果到 lava 存储、生成 lava test job 定义以及提交 test job。
+
+** FLEETING 项目结构
+
+   ~kci_core~ 暴露了 ~kci_build~, ~kci_test~, ~kci_bisect~, ~kci_data~, ~kci_rootfs~ 这些命令行工具。
+
+   ~kernelci.conf~ 定义了 lava 的地址以及 token 等。
+
+   ~kernelci~ 下是主要逻辑的实现。
+
+   
+** FLEETING config                                                   :filter:
+   
+*** FLEETING base.py
+    ~base.py~ 定义了 ~YAMLObject~ (一个辅助类，从 yaml 里面整理出一个 ~dict~)。
+
+    定义了 ~Filter~ 它定义了 ~match~ 方法， ~Filter~ 类衍生了四种 filter 类:
+
+    1. ~Blocklist~: 只要有一个命中就返回 not match;
+    2. ~Passlist~: 可以定义多个白名单，但是每个白名单都需要至少有一个通过，否则返回 not match;
+    3. ~Regex~: 传入一个字典，要求字典中每个 value 都要 match 所有正则表达式；
+    4. ~Combination~: 这个其实就是定义了一个二元组集合，要求传入的参数里面对应的二元组在定义的二元组集合里面；
+*** FLEETING build.py                                             :kci_build:
+    定义了 ~config/core/build-configs.yaml~ 相关的配置类。
+
+    ~Tree~ 继承 ~YAMlobject~, 它其实只记录名字和对应的库的 url。
+
+    ~Referecne~ 同样继承 ~YAMlobject~, 它是用于 bisect 的 tree。
+
+    ~Fragment~
+
+    ~Architecture~
+
+    ~BuildEnvironment~
+
+    ~BuildVariant~
+*** FLEETING lab.py
+    定义了 ~Lab~ 基类，在这个基础上定义了 ~LavaLab~ 类。这个类比较简单，只有 ~url~ 的定义比较重要，反正现在只有 lava 一种
+    
