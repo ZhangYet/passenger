@@ -1,7 +1,7 @@
 * FLEETING kci_core 源代码笔记
   ~kci_core~ 负责更新元数据、编译、上传编译结果到 lava 存储、生成 lava test job 定义以及提交 test job。
 
-** FLEETING 项目结构
+** PERMANENT 项目结构
 
    ~kci_core~ 暴露了 ~kci_build~, ~kci_test~, ~kci_bisect~, ~kci_data~, ~kci_rootfs~ 这些命令行工具。
 
@@ -12,7 +12,7 @@
    
 ** FLEETING config                                                   :filter:
    
-*** FLEETING base.py
+*** PERMANENT base.py
     ~base.py~ 定义了 ~YAMLObject~ (一个辅助类，从 yaml 里面整理出一个 ~dict~)。
 
     定义了 ~Filter~ 它定义了 ~match~ 方法， ~Filter~ 类衍生了四种 filter 类:
@@ -34,7 +34,16 @@
 
     ~BuildEnvironment~
 
-    ~BuildVariant~
+    ~BuildVariant~ 其实就是简化版的 ~BuildConfig~, 如果在 ~BuildConfig~ 里面没有指定 variant，那么就会用默认的配置。
+
+    ~BuildConfig~ 会指定 ~BuildEnvironment~, ~Architecture~ 和 ~Fragment~ 。
+
+    解析 ~build-config.yaml~ 的过程由 ~from_yaml()~ 负责：先构建包含所有 ~Tree~ 的字典，然后创建包含所有 ~Fragment~ 的，再到 ~Buildenvironment~, 最后用这三个字典去初始化 ~BuildConfig~ 。
 *** FLEETING lab.py
     定义了 ~Lab~ 基类，在这个基础上定义了 ~LavaLab~ 类。这个类比较简单，只有 ~url~ 的定义比较重要，反正现在只有 lava 一种
-    
+** FLEETING kci_build                                             :kci_build:
+*** update_mirror                                             :update_mirror:
+    ~update_mirror~ 会在本地创建一个文件夹，然后从 config 里面 tree 的 repo （这个 repo 指的是 kernel 源代码的 repo）然后将对应的 git 信息拉下来。
+*** update_repo
+    ~update_repo~ 真正拉代码下来。感觉其实不用跑 ~update_mirror~ 也行，另外就是不明白为什么有时候它把整个 ~kernelci-core~ 的文件夹都替换成 kernel 的源代码了。
+*** generate_fragments
