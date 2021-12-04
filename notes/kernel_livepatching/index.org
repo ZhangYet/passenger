@@ -1,4 +1,4 @@
-#+TITLE: kernel livepatching
+#+TITLE: [[https://www.kernel.org/doc/html/latest/livepatch/index.html][kernel livepatching]]
 #+OPTIONS: ^:nil
 #+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
 
