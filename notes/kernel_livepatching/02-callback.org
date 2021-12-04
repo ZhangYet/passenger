@@ -18,4 +18,16 @@
 ** FLEETING How it works
 callback 是可选的，缺了也没关系。但是运行的时候会成对执行，pre-patch 需要有 post-unpatch, post-patch 要有对应的 pre-unpatch. 常见的例子是 patch callback 申请资源，unpatch 释放资源。
 
+callback 只有在对应的 [[file:01-livepatch.org::*metadata][klp_object]] 载入的时候才会被调用。对于以 vmlinux 为目标的 patch 来说，只有 enable/disable 的时候才会被调用。以 module 为目标时，callback 会在 module 载入的时候调用，如果 module 已经被载入，callback 只会在 enable/disable 的时候调用。
 
+pre-patch callback 会返回一个错误码，错误码非0的时候说明 patching 过程出了问题。如果 pre-patch callback 返回了非零的错误码，module loader 应该：1) 如果 livepatching 还没有载入，就拒绝载入；2) 如果 livepatching 已经载入，就拒绝载入对应的 module。
+
+如果 pre-patch callback 报错，post-patch, pre-unpatch 和 post-unpatch callback 都不会被调用。
+
+如果 patch transition 逆转，那么 pre-unpatch callback 不会被调用，因为 post-patch 没有被调用。
+
+如果成功 patch 但是 patch transtion 因某些原因没有开始，只有 post-unpatch callback 会被调用。
+
+** FLEETING Use Cases
+1. 更新全局变量：[[https://git.zx2c4.com/linux/commit/?id=75ff39ccc1bd5d3c455b6822ab09e533c551f758][tcp: make challenge acks less predictable]]
+2. __init 和 probe 函数 patch 支持：[[https://git.zx2c4.com/linux/commit/?id=48900cb6af42][virtio-net: drop NETIF_F_FRAGLIST]] 因为 __init 和 probe 函数本来不支持 livepatching 的。
