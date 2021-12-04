@@ -1,5 +1,7 @@
 * FLEETING 基础知识
-  
+#+BEGIN_QUOTE
+Android 系统设计的独特之处在于，任何应用都可启动其他应用的组件。
+#+END_QUOTE  
 ** FLEETING 应用组件
    应用组件是 Android 应用的基础，共有四种组件：
 
@@ -7,5 +9,23 @@
    2. 服务；
    3. 广播接收器；
    4. 内容提供程序；
-*** FLEETING Activity
-    
+*** FLEETING Activity                                               :TO_LINK:
+    Activity 是与用户交互的入口。它表示拥有界面的单个屏幕。
+*** FLEETING 服务                                                   :TO_LINK:
+    服务在后台服务使应用保持运行状态。
+*** FLEETING 广播接收器
+*** FLEETING 内容提供程序
+    提供共享数据。但是它并不是数据库的抽象。
+** FLEETING 启动组件                                         :Intent:TO_LINK:
+   Activity, 服务和广播接收器，都通过 Intent 来启动。
+
+   内容提供程序在成为 ContentResolver 的请求目标时启动。
+
+   启动组件的方法：
+
+   1. Activity: 向 ~startActivity()~ 或 ~startActivityForResult()~ 传递 ~Intent~ ，或者为其安排新服务。
+   2. 服务：使用 ~JobScheduler~ 类(Android 5.0 或更高)来调度。也可以往 ~startService()~ 和 ~bindService()~ 传 ~Intent~ （更早的 Android 版本）。
+   3. 广播：使用 ~sendBroadcast()~, ~sendOrderedBroadcast()~, ~sendStickyBroadcast()~ 传入 ~Intent~ 发起广播。
+   4. 在 ~ContentResolver~ 上调用 ~query()~ ，对内容提供程序执行查询。
+** FLEETING 清单文件                                        :AndroidManifest:
+
