@@ -1,1 +1,15 @@
-* FLEETING Atomic Replace & Cumulative Patches
+* PERMANENT Atomic Replace & Cumulative Patches :atomic_replace:cumulative_patch:
+考虑打了多个 patching, 并且多个 patching 之间有依赖关系（我们必须按顺序打补丁），所以 livepatching 给出 atomic replace 技术：打个新 patch 把之前所有的 patch 都废了。
+
+** PERMANENT Usage
+   写的时候在 [[file:01-livepatch.org::*metadata][klp_patch]] 结构里面定义 ~replace=true~ 即可。完成 patching 过程之后，进程都会使用新的 patch，旧的 patch 都会被 disable。
+
+   如果函数没有被新 patch 修改，它的 ftrace handler 会被移除。
+   
+** PERMANENT Features
+   1. 自动还原没被 new patch 修改的函数。
+   2. 减少不再被 patched 的函数 core redirection 的性能影响。
+   3. 用户不需要在 patch 之间的依赖上动脑。
+
+** SKIP Limitation      
+   
