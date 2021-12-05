@@ -4,3 +4,4 @@
 
 #+INCLUDE: "./test_config.org" :minlevel 1
 #+INCLUDE: "./kci_core.org" :minlevel 1
+#+INCLUDE: "./lava_template.org" :minlevel 1
