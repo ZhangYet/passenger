@@ -3,3 +3,4 @@
 
 # for emacs itself
 *.*~
+.dir-locals.el
