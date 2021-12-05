@@ -1,0 +1,3 @@
+* SKIP livepatch ELF format                                             :elf:
+** SKIP Background and motivation                        :relocation:TO_LINK:
+   ELF 旨在复用 module loader 中 relocation。具体来说，livepatch 使用 ~apply_relocate_add()~ 函数实现 relocation.

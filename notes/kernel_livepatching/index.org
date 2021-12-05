@@ -5,3 +5,4 @@
 #+INCLUDE: "./01-livepatch.org" :minlevel 1
 #+INCLUDE: "./02-callback.org" :minlevel 1
 #+INCLUDE: "./03-atomic-replace-and-cumulative-patches.org" :minlevel 1
+#+INCLUDE: "./04-elf-format.org" :minlevel 1
