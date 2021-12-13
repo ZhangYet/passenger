@@ -1,0 +1,6 @@
+:PROPERTIES:
+:ID:       425B7251-B29B-4F93-BFDB-91642BB1711C
+:END:
+#+TITLE: qemu document notes
+#+OPTIONS: ^:nil
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
