@@ -1,3 +1,10 @@
-* FLEETING [[https://en.wikipedia.org/wiki/Mmap][mmap]]
+* PERMANENT [[https://en.wikipedia.org/wiki/Mmap][mmap]]
 
 ~mmap~ 会用于 ~malloc()~ 实现中。
+
+主要分两种：
+
+1. file mapping: 将一个文件映射到内存。
+2. anonymous mapping: 直接映射一个虚拟内存空间，内容初始化为0，类似 ~malloc~ 所以有些 ~malloc~ 实现会用 ~mmap~ 来实现。
+
+   另外值得注意的是可见性 TLPI 里面有比较详细的表格。

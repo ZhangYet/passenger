@@ -1,6 +1,6 @@
 * 进程管理
 
-** FLEETING 进程内存管理
+** ORGANIZING 进程内存管理
 
 *** PERMANENT 内存布局                               :segment:bss:stack:heap:
     CLOSED: [2021-11-06 六 20:41]

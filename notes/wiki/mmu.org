@@ -1,4 +1,4 @@
-* FLEETING [[https://en.wikipedia.org/wiki/Memory_management_unit][mmu]]                                                  :mmu:TLB:PTE:
+* PERMANENT [[https://en.wikipedia.org/wiki/Memory_management_unit][mmu]]                                                 :mmu:TLB:PTE:
 
 mmu 负责讲虚拟内存地址翻译成物理内存地址。
 
@@ -15,6 +15,9 @@ PTE 还有如下内容：
 
 如果 PTE 被禁止访问某个虚拟页面，可能是因为还没有物理内存分配给该虚拟页面，此时 mmu 出发一个[[file:page_fault.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Page_fault%5D%5Bpage%20fault%5D%5D][页错误]]。kernel 会处理这个异常。
 
-** FLEETING mmu 的好处
+** PERMANENT mmu 的好处
 
-** FLEETING x86-64 的 mmu
+   1. 阻止程序访问非法内存地址；
+   2. 减轻内存碎片问题：MMU 可以把不连续的内存映射成连续的虚拟内存空间；
+
+** SKIP x86-64 的 mmu
