@@ -13,7 +13,7 @@
 1. 应用申请内存（如 ~mallco()~ ）;
 2. 如果有足够的空间，直接分配，如果没有扩大虚拟内存，或者使用 [[file:~/Repos/passenger/notes/tlpi/chap07.org::*~brk()~%20%E5%92%8C%20~sbrk()~][brk()]] 扩大堆的空间，或者使用 [[file:~/Repos/passenger/notes/tlpi/chap49.org::*%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84][mmap()]] 创建新的内存段（[[file:~/Repos/passenger/notes/wiki/mmap.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Mmap%5D%5Bmmap%5D%5D][mmap 会用在某些 malloc 调用中]]）；
 3. 应用尝试使用内存，MMU（将虚拟内存地址转换成物理内存），[[file:~/Repos/passenger/notes/wiki/mmu.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Memory_management_unit%5D%5Bmmu%5D%5D][MMU]] 发现虚拟内存地址还没有映射，会出发 page fault;
-4. 内核捕捉到 [[file:~/Repos/passenger/notes/wiki/page_fault.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Page_fault%5D%5Bpage%20fault%5D%5D][page fault]]，创建映射，扣减 [[file:~/Repos/passenger/notes/wiki/rss.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Resident_set_size%5D%5BRSS%5D%5D][RSS]];
+4. 内核捕捉到 [[file:~/Repos/passenger/notes/wiki/page_fault.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Page_fault%5D%5Bpage%20fault%5D%5D][page fault]]，创建映射，扣减 [[file:~/Repos/passenger/notes/wiki/rss.org::*%5B%5Bhttps://en.wikipedia.org/wiki/Resident_set_size%5D%5BRSS%5D%5D][RSS]] （驻留集见[[file:~/repos/passenger/notes/tlpi/chap06.org::*虚拟内存管理][虚拟内存管理]]）;
 5. 如果有太多的内存请求，内核会使用 page-out 进程(kswapd)释放一部分页面：a) 从硬盘读取没有被修改的文件系统页，直接释放；b) 被修改过的文件系统页，在释放之前必须被写回去； c) 应用内存页，如果有 swap 设备，那么这些内存页会先被写到 swap 设备。写入 swap device 就是 swapping.
 *** PERMANENT page-out daemon                                        :kswapd:
     CLOSED: [2021-11-07 日 00:56]

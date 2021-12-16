@@ -1,4 +1,4 @@
-* PERMANENT [[https://en.wikipedia.org/wiki/Mmap][mmap]]
+* PERMANENT [[https://en.wikipedia.org/wiki/Mmap][mmap]]                                                       :mmap:
 
 ~mmap~ 会用于 ~malloc()~ 实现中。
 

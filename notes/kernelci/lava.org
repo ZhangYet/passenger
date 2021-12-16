@@ -1,0 +1,44 @@
+* PERMANENT lava                                                       :lava:
+** PERMANENT [[https://elinux.org/images/f/fe/Testjob_templating_for_LAVA.pdf][testjob template in LAVA]]
+  
+*** PERMANENT construction
+    分三部分：general setting, deployment and boot, test section.
+   
+*** PERMANENT general setting
+    包括一个整体的 timeout, 还有 context
+
+*** PERMANENT deployment and boot
+    auto_login 部门描述了登录方法，它是在 build 的时候指定的。它还指定了 namespace
+   
+*** PERMANENT test section
+    namespace 部分在 [[*deployment and boot][deployment and boot]] 部分指定。
+   
+*** PERMANENT implementation
+    层级化的 jinja2 模板，用 python 渲染。
+
+    base -> deployment base -> device type ->  test
+
+    有个 submit_for_testing.py 可以生成 job，不知道是不是被 kci_test generate 替代了。
+
+    但其实这个生成的 job 我们可能用不了，因为我们需要用到各种跟 lava 相关的 metadata。
+
+*** PERMANENT base template
+   
+**** PERMANENT timeouts
+    可以单独为每个 section 设置。
+   
+**** PERMANENT deployments
+     fastboot 和 TFTP+NFS
+
+*** PERMANENT device template
+    扩展 [[*base template][base template]]，定义跟 device 相关的变量（有些是在 build 的时候指定的）。
+
+*** PERMANENT test template
+    每个 test 都应该和任意的 device 匹配。
+
+** PERMANENT [[https://docs.lavasoftware.org/lava/results-intro.html][lava test result]]
+   - Note taken on [2021-12-16 Thu 10:43] \\
+     这篇文档没有说明怎样计算一个 test suit 是否 pass
+   test case 组成 test suit, test suit 组成 test job.
+
+   test suit 的名字由 [[*\[\[https://elinux.org/images/f/fe/Testjob_templating_for_LAVA.pdf\]\[testjob template in LAVA\]\]][testjob template]] 中的 name 决定。可以单独通过 REST 接口获取 test suit 的测试结果。

@@ -1,6 +1,26 @@
-* 进程管理
+* PERMANENT 进程管理                                                :process:
 
-** ORGANIZING 进程内存管理
+** PERMANENT 进程与程序
+   进程是可执行程序的实例（比较本质）。
+
+   程序包含了：
+   1. 二进制格式标识，现在常用的格式是 [[file:~/repos/passenger/notes/wiki/elf.org::*\[\[https://en.wikipedia.org/wiki/Executable_and_Linkable_Format\]\[elf\]\]][elf]]；
+   2. 机器语言指令；
+   3. 程序入口地址；
+   4. 数据
+   5. 符号表和重定位表；
+   6. 共享库和动态链接信息；
+
+   进程定义（内核角度）：用户内存空间（程序代码、代码所用到的变量）和内核数据结构（用于维护进程状态信息，包括标识号、虚拟内存表、描述符表等）组成。
+
+   
+** PERMANENT 进程号和父进程号                 :get_pid:pid_t:get_ppid:pstree:
+
+   可以通过 ~get_pid~ 获取类型为 ~pid_t~ 的进程号。绝大部分程序于进程号无关。 ~get_ppid~ 可以获取父进程号。 ~pstree~ 可以看到进程间的树状关系。
+
+   如果进程的父进程终止，init 进程会成为该进程的父进程（居然不是由祖父进程接收）。
+   
+** PERMANENT 进程内存管理
 
 *** PERMANENT 内存布局                               :segment:bss:stack:heap:
     CLOSED: [2021-11-06 六 20:41]
@@ -9,3 +29,38 @@
 3. BSS，未初始化数据段。把初始化和未初始化的全局变量和静态变量分开存放主要是存储到磁盘的时候，不需要为未初始化的数据分配空间。
 4. 栈，由栈帧组成，系统为函数分配栈帧用来存放参数等。
 5. 堆，进行动态内存分配的空间，堆顶即 program break.
+
+   用 ~size~ 命令可以列出以上各段的大小。
+
+** PERMANENT 虚拟内存管理 :page:resident_set:SIGSEGV:brk:sbrk:malloc:mmap:munmap:
+   每个程序仅有部分页面驻留在物理内存页帧中，构成驻留集(resident set), 这些页面的大小就是 [[file:~/repos/passenger/notes/wiki/rss.org::*\[\[https://en.wikipedia.org/wiki/Resident_set_size\]\[RSS\]\]][RSS]] 。
+
+   在进程的虚拟地址空间，未被使用的虚拟地址空间可能还没有页表（没有对应的物理内存），访问到对应的虚拟地址时，内核会收到 SIGSEGV 信号。
+
+   因为内核能为进程分配和释放页，所以进程有效虚拟地址范围会变化，有如下可能：
+
+   1. 栈向下增长超出曾到达的位置。
+   2. 调用 ~brk()~, ~sbrk()~ 或 ~malloc~ 函数族提升 program break 的位置（即堆顶）；
+   3. 调用 ~shmat()~ 和 ~shmdt()~ (因为这是 System V 的内容，所以我们跳过)；
+   4. 调用 [[file:~/repos/passenger/notes/wiki/mmap.org::*\[\[https://en.wikipedia.org/wiki/Mmap\]\[mmap\]\]][mmap]] 创建内存映射和 ~munmap()~ 解除内存映射；
+
+   虚拟内存的有点：
+
+   1. 进程间、进程与内核相互隔离；
+   2. 提供一种 IPC 手段（比如 ~mmap~ 映射一块共有的内存）；
+   3. 基于页面表标记相关页面的权限，进行保护；
+   4. 开发者和编译器无需关注 RAM 中的页面布局；
+   5. 驻留在内存中的仅是程序的一部分，节约了 RAM；
+
+** SKIP 栈和栈帧
+   
+** SKIP 命令行参数
+   
+** PERMANENT 环境列表                                         :getenv:setenv:
+
+   子进程会继承父进程的环境变量列表（以副本形式）。在 C 程序中可以通过全局变量 ~**environ~ 访问环境列表。当然更常用的还是通过 ~getenv()~ 来获取某个环境变量。修改环境变量可以看成一种单向的进程间通信手段（父进程修改之后，fork 的时候子进程可以知道，当然之后就分道扬镳了）。
+
+   
+** PERMANENT 执行非局部跳转                                :setjump:longjump:
+
+   ~setjump()~ 和 ~longjump()~ 提供了跨函数「goto」的能力。这两个函数太复杂了，能避则避吧。
