@@ -5,7 +5,7 @@
    就是为了不重启打补丁。
 
 
-** ORGANIZING Kprobes, Ftrace, Livepatching                   :kprobe:ftrace:
+** PERMANENT Kprobes, Ftrace, Livepatching                    :kprobe:ftrace:
 
 livepatching 的关键就是 code redirection，就是运行到某一点的时候绕开，运行另一段代码，主要有三种方法：
 
@@ -14,20 +14,26 @@ livepatching 的关键就是 code redirection，就是运行到某一点的时�
 3. livepatching 需要在函数参数或者栈改变之前开始作用;
 
 三种方法[fn:1]需要在运行时修改执行的代码。解决 code redirection 问题的方案大部分以动态 ftrace 框架为基础。Kprobe 被注册成 function entry 被探知时执行的 ftrace handler 。 live patch 中的函数也会在定制的 ftrace hanlder 帮助下被调用。
-** FLEETING Consistency Model                             :consistency_model:
+** ORGANIZING Consistency Model                           :consistency_model:
 最好的一种 patching 是自洽的：只修改某个函数的逻辑，不影响其他函数，不改变语义。
 
 但是考虑到更复杂的情况：patching 之后的函数会改变锁的顺序，或者改变某些临时结构体的含义并影响其他参数。这个时候，被影响的单位（可能是 thread 也可能是整个 kernel）需要同时用新版本或者同时用旧版本。
 
 Consistency model 就是如何安全地启动 patching（保证都用新版本或者都用旧版本）。
 
-Livepatching 的 consistency model 混合了 kGraft 的 per-task consistency 与 syscall barrier switching 和 kpatch 的 stack trace switching 机制，此外，它还有一些回退机制。
+Livepatching 的 consistency model 混合了 kGraft 的 per-task
+ consistency 与 syscall barrier switching 和 kpatch 的
+ stack trace switching 机制，此外，它还有一些回退机制。
 
-可以的时候 patch 会逐个 task 生效。生效和失效就是进程 patched/unpatched state 的转换。interrupt handler 和子进程都会继承 patched state.
+可以的时候 patch 会逐个 task 生效。生效和失效就是进程 patched/unpatched state 的转换。
+interrupt handler 和子进程都会继承 patched state.
+
 
 检查是否可以 patch 的方法主要有三种：
 
-1. 检查 sleeping task ，如果它的栈里面没有被影响的函数，就 patch 它。周期性执行直到全部被 patch，它需要 ~HAVE_RELIABLE_STACKTRACE~ 的支持。
+1. 检查 sleeping task ，如果它的栈里面没有被影响的函数，就 patch 它。周期性执行直到全部被 patch，它需要
+   [[https://patchwork.kernel.org/project/linux-mm/patch/20200306062845.YlxErhyCr%25akpm@linux-foundation.org/][HAVE_RELIABLE_STACKTRACE]] (这个配置项说明是否有 ~save_stack_trace_tsk_reliable()~ 或 ~arch_stack_walk_reliable()~ 任意
+   一个).
 2. 使用 kernel exit switch , 这种方法会在进程从 syscall 中退出到 user space/user space IRC/signal 的时候 patch 。
 3. 使用 ~klp_update_patch_state()~ patch idle "swapper" task ，因为这种 task 不会退出 kernel。
 
@@ -42,8 +48,8 @@ Livepatching 的 consistency model 混合了 kGraft 的 per-task consistency 与
 还有 ~/sys/kernel/livepatch/<patch>/force~ 这个可以解决[fn:2]的问题。但是要慎用。
 *** SKIP Adding consistency model support to new architectures
 ** FLEETING Livepatching Model    
-*** FLEETING new functions                                          :TO_LINK:
-命名的时候最好跟 patched 前的函数区分一下，也可以定义为静态函数，毕竟需要全局可见。最麻烦的地方在于：万一新函数需要调用一些原来的源代码定义的局部的东西。后面的 ELF 格式【此处应该有链接】会讲到。
+*** ORGANIZING new functions
+命名的时候最好跟 patched 前的函数区分一下，也可以定义为静态函数，毕竟需要全局可见。最麻烦的地方在于：万一新函数需要调用一些原来的源代码定义的局部的东西。后面的 [[file:04-elf-format.org::*livepatch ELF format][livepatch ELF format]] 会讲到。
 *** FLEETING metadata                         :klp_func:klp_object:klp_patch:
 每个 patch 由三层数据结构表示：
 
