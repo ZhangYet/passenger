@@ -14,7 +14,7 @@ livepatching 的关键就是 code redirection，就是运行到某一点的时�
 3. livepatching 需要在函数参数或者栈改变之前开始作用;
 
 三种方法[fn:1]需要在运行时修改执行的代码。解决 code redirection 问题的方案大部分以动态 ftrace 框架为基础。Kprobe 被注册成 function entry 被探知时执行的 ftrace handler 。 live patch 中的函数也会在定制的 ftrace hanlder 帮助下被调用。
-** ORGANIZING Consistency Model                           :consistency_model:
+** PERMANENT Consistency Model                            :consistency_model:
 最好的一种 patching 是自洽的：只修改某个函数的逻辑，不影响其他函数，不改变语义。
 
 但是考虑到更复杂的情况：patching 之后的函数会改变锁的顺序，或者改变某些临时结构体的含义并影响其他参数。这个时候，被影响的单位（可能是 thread 也可能是整个 kernel）需要同时用新版本或者同时用旧版本。
@@ -37,7 +37,9 @@ interrupt handler 和子进程都会继承 patched state.
 2. 使用 kernel exit switch , 这种方法会在进程从 syscall 中退出到 user space/user space IRC/signal 的时候 patch 。
 3. 使用 ~klp_update_patch_state()~ patch idle "swapper" task ，因为这种 task 不会退出 kernel。
 
-不支持 ~HAVE_RELIABLE_STACKTRACE~ 的系统就只能使用方法2了。这样可能会有很多进程在退出之前都使用旧版本的函数，如果这些进程一直不退出，那就需要我们手动发信号。特别是 kthreads 。如果没法保证 patch threads ，那么一个不支持 ~HAVE_RELIABLE_STACKTRACE~ 的系统不能认为全面支持 livepatching 。
+不支持 ~HAVE_RELIABLE_STACKTRACE~ 的系统就只能使用方法2了。这样可能会有很多进程在退出之前都使用旧版本的函数，
+如果这些进程一直不退出，那就需要我们手动发信号。特别是 kthreads 。如果没法保证 patch threads ，
+那么一个不支持 ~HAVE_RELIABLE_STACKTRACE~ 的系统不能认为全面支持 livepatching 。
 
 文件 ~/sys/kernel/livepatch/<patch>/transition~ 标识是否有一个 patch in transition , 同一时间只能有一个 patch in transition. [fn:2]
 
@@ -47,7 +49,7 @@ interrupt handler 和子进程都会继承 patched state.
 
 还有 ~/sys/kernel/livepatch/<patch>/force~ 这个可以解决[fn:2]的问题。但是要慎用。
 *** SKIP Adding consistency model support to new architectures
-** FLEETING Livepatching Model    
+** ORGANIZING Livepatch module
 *** ORGANIZING new functions
 命名的时候最好跟 patched 前的函数区分一下，也可以定义为静态函数，毕竟需要全局可见。最麻烦的地方在于：万一新函数需要调用一些原来的源代码定义的局部的东西。后面的 [[file:04-elf-format.org::*livepatch ELF format][livepatch ELF format]] 会讲到。
 *** FLEETING metadata                         :klp_func:klp_object:klp_patch:

@@ -1,0 +1,22 @@
+* FLEETING [[https://en.wikipedia.org/wiki/Non-uniform_memory_access][NUMA]]                                                        :NUMA:
+在看正式的 wiki 之前先读一下其他材料。
+** FLEETING [[https://zhuanlan.zhihu.com/p/33621500][深挖 NUMA]]
+*** FLEETING 从 UMA 到 NUMA
+
+最初，所有对内容访问都通过北桥芯片访问的时代，实现了 UMA，总线模型保证所有内存访问是一致的。后来因为一个芯片被塞入更多核
+心，内存带宽成了性能瓶颈，所以 X86 架构开始搞 NUMA.
+
+在 NUMA 下，每个 Socket 有一个独立的内存控制器（IMC），不同 socket 内的 IMC 通过 QPI 通讯。IMC 再加一层 IMC bus。
+*** FLEETING 目前的瓶颈
+核心多了，路由复杂了，QPI 已经到瓶颈了。
+*** NUMA 在内核的实现                                                :kernel:
+~mm/mmzone.c~ 和 ~include/linux/mmzone.h~ 定义了 NUMA 的数据结构和操作方式。
+
+NUMA 调度位于 ~kernel/sched/core.c~ 中的 ~sysctl_numa_balancing~.
+
+1. 弃用了 NUMA 的 Linux 上，kernel 不会将任务迁移到别的 NUMA node 上。
+2. 进程整个生命周期中， NUMA node 保持不变。
+3. NUMA node 负载不均衡的时候，熊会给予一个延时任务的迁移（这跟上面第2点的说法有点矛盾啊）。
+4. NUMA node 之间有不同的拓扑结构。可以用 ~numactl -H~ 查看不同 node 之间的距离。
+** FLEETING [[https://cloud.tencent.com/developer/article/1159058][NUMA特性对MySQL性能的影响测试]]
+

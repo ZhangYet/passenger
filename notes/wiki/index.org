@@ -1,4 +1,4 @@
-#+TITLE: wiki é˜…è¯»ç¬”è®°
+#+TITLE: wiki ÔÄ¶Á±Ê¼Ç
 #+OPTIONS: ^:nil
 #+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
 
