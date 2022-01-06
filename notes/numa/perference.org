@@ -1,0 +1,9 @@
+* FLEETING 一些参考资料                                                :numa:
+** FLEETING [[https://www.zhihu.com/question/324538650/answer/685593206][一个知乎回答]]                                                :die:
+首先我们要了解[[https://zhuanlan.zhihu.com/p/51354994][什么是 die]]？ Die 就是从晶圆上切割下来的一个方块。通常来说 Intel 会把 socket 做到一个 die 上面，而对 AMD 来
+说，一个 Socket 由多个 die 组成。Die 之间通过片外总线互联，而且不同的 die 之间不能同享 CPU 缓存。
+
+关于这些概念，也可以看一下[[https://superuser.com/a/324285][这个回答]]。CPU core 是最基本的逻辑单元。Die 就是一块半导体晶片。一个 die 可以由多个 core. CPU
+Package 其实就是我们拿到的成品 CPU。
+** FLEETING [[https://blog.51cto.com/u_15127702/4372247][NUMA 的取舍与优化设置]]                                      :BIOS:
+这篇博文提到一个问题：BIOS 有 NUMA 相关的配置，需要查清楚怎样查 BIOS 中对应 NUMA 的配置。
