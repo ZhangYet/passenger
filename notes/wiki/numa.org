@@ -1,1 +1,28 @@
-* FLEETING [[https://en.wikipedia.org/wiki/Non-uniform_memory_access][NUMA]]                                                        :NUMA:
+* FLEETING [[https://en.wikipedia.org/wiki/Non-uniform_memory_access][NUMA]]                                                        :numa:
+  Under the NUMA, a processor can access its local memory faster than non-local memory.
+
+** PERMANENT Overview
+   The problem is that only one processor can access the memory leads to several processors starving.
+
+   To address this problem, NUMA provides separate memory for each processor, avoiding performance hit when several
+   processors attempt to access the same address.
+
+   Another method is [[https://en.wikipedia.org/wiki/Multi-channel_memory_architecture][multi-channel memory architecture]].
+
+** FLEETING Implementations
+   AMD implemented NUMA with [[https://en.wikipedia.org/wiki/HyperTransport][HT]].
+
+   Intel implemented NUMA with [[https://en.wikipedia.org/wiki/Intel_QuickPath_Interconnect][QPI]], which was replaced by [[https://en.wikipedia.org/wiki/Intel_Ultra_Path_Interconnect][UPI]] with the release of [[https://en.wikipedia.org/wiki/Skylake_(microarchitecture)][skylake]].
+   
+** SKIP ccNUMA
+   
+** FLEETING NUMA vs. cluster computing
+   One can view NUMA as a tightly coupled form of cluster computing. The addition of virtual memory paging to a cluster
+   architecture can allow the implementation of NUMA entirely in software.
+
+   #+BEGIN_QUOTE
+   However, the inter-node latency of software-based NUMA remains several orders of magnitude greater (slower) than that of hardware-based NUMA.
+   #+END_QUOTE
+
+   For father reading, please read this [[https://web.archive.org/web/20131228092942/http://www.cs.nyu.edu/~lerner/spring10/projects/NUMA.pdf][doc]].
+   
