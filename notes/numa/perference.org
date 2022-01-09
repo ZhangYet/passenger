@@ -1,9 +1,52 @@
 * FLEETING 一些参考资料                                                :numa:
-** FLEETING [[https://www.zhihu.com/question/324538650/answer/685593206][一个知乎回答]]                                                :die:
+** PERMANENT [[https://www.zhihu.com/question/324538650/answer/685593206][一个知乎回答]]                                               :die:
 首先我们要了解[[https://zhuanlan.zhihu.com/p/51354994][什么是 die]]？ Die 就是从晶圆上切割下来的一个方块。通常来说 Intel 会把 socket 做到一个 die 上面，而对 AMD 来
 说，一个 Socket 由多个 die 组成。Die 之间通过片外总线互联，而且不同的 die 之间不能同享 CPU 缓存。
 
 关于这些概念，也可以看一下[[https://superuser.com/a/324285][这个回答]]。CPU core 是最基本的逻辑单元。Die 就是一块半导体晶片。一个 die 可以由多个 core. CPU
 Package 其实就是我们拿到的成品 CPU。
-** FLEETING [[https://blog.51cto.com/u_15127702/4372247][NUMA 的取舍与优化设置]]                                      :BIOS:
+** PERMANENT [[https://blog.51cto.com/u_15127702/4372247][NUMA 的取舍与优化设置]]                                     :BIOS:
 这篇博文提到一个问题：BIOS 有 NUMA 相关的配置，需要查清楚怎样查 BIOS 中对应 NUMA 的配置。
+
+周五忙活了一个下午，还是 ~numactl --hardware~ 了事。
+** FLEETING [[https://arxiv.org/abs/2106.08026][Modeling memory bandwidth patterns on NUMA machines with performance counters]]
+Key point: to get the correct number of threats to be placed in the correct positions on the machine.
+
+看不下去。
+** FLEETING [[https://arxiv.org/abs/2101.09284][User-Level Memory Scheduler for Optimizing Application Performance in NUMA-Based Multicore Systems]]
+#+BEGIN_QUOTE
+This paper presents a user-space memory scheduler that allocates the ideal memory node for tasks by monitoring the
+characteristics of non-uniform memory architecture.
+#+END_QUOTE
+** FLEETING [[https://queue.acm.org/detail.cfm?id=2513149][NUMA: An Overview]]
+*** FLEETING How operating systems handle NUMA memory
+**** Ignore the difference
+The OS is not aware of memory nodes.
+**** Memory striping in hardware
+Consecutive cache lines are taken from different NUMA nodes. The NUMA effects are averaged out. The OS still doesn't
+know about the difference in memory performance. The drawback is that interconnect is in constant use. Performance will
+never be optimal.
+**** Heuristic memory placement for application
+If the OS is NUMA-aware, it has to adopt a policy that allocate memory in ways minimizing signal path.
+
+The most common assumptions are that the application will run on the local node and that memory from the local node is
+to be preferred. If the number of processors is higher than the number of hardware contexts available on a socket or if
+the application uses more memory than avilable on a node or the application was moved to processors on a different
+socket.
+**** Special NUMA configuration for application
+Use ~numactl~ or ~taskset~.
+**** Application control of NUMA allocations
+The OS provides system calls that allow the application to specify which memory region should be use.
+*** PERMANENT How does Linux handle NUMA
+On boot-up, Linux will detect the organization of memory via the ACPI tables provided by the firmware and then create
+zones that map to NUMA nodes and DMA areas as needed. Memory allocation then occurs from the zones.
+*** FLEETING Memory policies
+1. Node local: The allocation occurs from the memory node local to where the code is currently executing.
+2. Interleave: Allocation occurs round-robin. Interleaving is used to distribute memory evently for structures may be
+   accessed from multiple processors.
+
+Kernel structures are created during bootstrap with Interleave policy. The default policy is changed to Node local when
+~init~ daemon is started.
+
+The active memory alloction policies can be seen in ~/proc/<pid>/numa_maps~.
+*** FLEETING Basic Operation on process startup
