@@ -1,0 +1,8 @@
+#+TITLE: common commandline tools
+#+OPTIONS: ^:nil
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+* dmidecode                                                            :bios:
+  ~dmidecode~ is to get smbios info. It needs sudo permission.
+* numactl                                                              :numa:
+** numactl --hardware
+   To check if the bios enable the numa function.
