@@ -50,3 +50,5 @@ Kernel structures are created during bootstrap with Interleave policy. The defau
 
 The active memory alloction policies can be seen in ~/proc/<pid>/numa_maps~.
 *** FLEETING Basic Operation on process startup
+* FLEETING [[https://www.cse.wustl.edu/~jain/cse567-17/ftp/numaeval.pdf][Performance Benchmarking Locality Aware Runtime for NUMA Architecture]]
+  
