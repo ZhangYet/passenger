@@ -1,0 +1,24 @@
+#+TITLE: MMTests
+#+AUTHOR: Dantezy
+#+DATE: {{{time(%Y-%m-%d %a %H:%M)}}}
+#+OPTIONS: num:nil
+#+OPTIONS: ^:nil
+* PERMANENT Introduction                              :performance:benchmark:
+[[https://github.com/gormanm/mmtests][MMTests]] is a configurable test suite that runs performance test against arbitrary workloads.
+* PERMANENT Tutorials                                 :performance:benchmark:
+The ~run-mmtest.sh~ is the main entry point. It reads a configure file. After running multiple tests, we can use
+~compare-mmtests.pl~ to compare results, which will generate a report with differnt formats.
+* PERMANENT Running Benchmarks with MMTests           :performance:benchmark:
+** PERMANENT Configure
+All available configurations are stored in ~configs~.
+
+Some options are universal:
+
+  * ~MMTESTS~: A list of what tests will be run.
+  * ~AUTO_PACKAGE_INSTALL~: yes/no
+  * ~MMTESTS_NUMA_POLICY~: decide NUMA policy. This will be the most concerned option.
+* FLEETING Configure About NUMA                                        :NUMA:
+The value of ~MMTESTS_NUMA_POLICY~ is related to ~numad~ and ~numactl~.
+** numad
+[[https://linux.die.net/man/8/numad][numad]] is a user-level daemon that provides placement advice and process management for efficient use of CPUs and memory
+on systems with NUMA topology.
