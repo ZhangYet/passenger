@@ -42,7 +42,7 @@
    1. 栈向下增长超出曾到达的位置。
    2. 调用 ~brk()~, ~sbrk()~ 或 ~malloc~ 函数族提升 program break 的位置（即堆顶）；
    3. 调用 ~shmat()~ 和 ~shmdt()~ (因为这是 System V 的内容，所以我们跳过)；
-   4. 调用 [[file:~/repos/passenger/notes/wiki/mmap.org::*\[\[https://en.wikipedia.org/wiki/Mmap\]\[mmap\]\]][mmap]] 创建内存映射和 ~munmap()~ 解除内存映射；
+   4. 调用 [[file:~/repos/passenger/notes/wiki/mmap.org::*\[\[https://en.wikipedia.org/wiki/Mmap\]\[mmap\]\]][mmap]] 创建内存映射和 ~munmap()~ 解除内存映射[fn:1]；
 
    虚拟内存的有点：
 
@@ -64,3 +64,7 @@
 ** PERMANENT 执行非局部跳转                                :setjump:longjump:
 
    ~setjump()~ 和 ~longjump()~ 提供了跨函数「goto」的能力。这两个函数太复杂了，能避则避吧。
+
+* Footnotes
+
+[fn:1] 现代 *nix 一般使用 ~mmap()~ 实现 ~alloc()~ 。见[[https://utcc.utoronto.ca/~cks/space/blog/unix/SbrkVersusMmap][这篇文章]]。
