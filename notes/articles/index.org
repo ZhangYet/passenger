@@ -1,0 +1,8 @@
+#+TITLE: 随便看的文章笔记
+#+OPTIONS: ^:nil
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+* [[https://utcc.utoronto.ca/~cks/space/blog/unix/SbrkVersusMmap][brk and mmap]] :brk:mmap:memory:
+  The article tells the history of the memory management of *nix system, and because of its adventages, the ~mmap()~  became
+  the mainstream of ~*alloc()~ implementation instead of ~brk()~.
+* [[https://aosabook.org/en/nginx.html][Nginx]]                                                               :nginx:
+  
