@@ -1,0 +1,15 @@
+#+TITLE: Performance Exploration of Virtualization Systems
+#+OPTIONS: ^:nil
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+#+HTML_LINK_HOME: https://arxiv.org/pdf/2103.07092.pdf
+#+TAGS: virtualization, containers, KVM, VMware, docker
+* FLEETING Performance Exploration of Virtualization Systems :virtualization:containers:KVM:docker:VMware:
+  original URL: https://arxiv.org/pdf/2103.07092.pdf
+  
+** PERMANENT ABSTRACT
+   The containers are the way-to-go. VMWare and KVM perform similarly on most of the benchmark.
+   
+** PERMANENT INTRODUCTION
+   This article study the architectures of virtualization systems and provides a quantitative evalution of the
+   performance that can be achieved against IO-intensive, memory-intensive, and compute-intensive benchmarks. It also
+   evaluate the overhead introduced by virtualization against native executions.
