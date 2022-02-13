@@ -13,3 +13,36 @@
    This article study the architectures of virtualization systems and provides a quantitative evalution of the
    performance that can be achieved against IO-intensive, memory-intensive, and compute-intensive benchmarks. It also
    evaluate the overhead introduced by virtualization against native executions.
+
+** FLEETING BACKGROUND
+
+*** PERMANENT Type of Virtual Machine Monitors               :VMM:hypervisor:
+  VMs typically run above VMM or hypervisor, which controls the resources of VMs and ensures proper execution of
+  privileged instructions.
+
+  The x86 architecture separates processor privileges with a protection ring or levels. Usually, level 0 is reserved for
+  the OS. Levels 1 and 2 are mostly unused. User applications run at level 3. Running at level 0 allow the kernel to
+  directly access and control the hardware.
+
+  We consider two types of hypervisors:
+  1. *Type-1 hypervisor*: the VMM is installed directly above the hardware, for example: Xen and KVM. The VMM is
+     responsible from emulating the privileged instructions launched in the guest space.
+  2. *Type-2 hypervisor*: the VMM is installed in the host OS. Privileged instructions in the guest space typically
+     cause a world switch to the host kernel.
+
+*** PERMANENT VMware Workstation                                     :VMware:
+    VMware is a Type-2 hypervisor. It virtualizes IO devices using a hosted IO model which consists in taking advantage
+    of pre-existing support in the host OS.
+
+    Non-privileged instructions from the guest can run natively on the hardware without interference from the VMM.
+    
+    When the guest OS issues privileged instructions, the VMM traps and requests a world switch from the *VM
+    Driver*. Next, the VMM provides data to *VM App*. The VM App maps the virtual requests to host system calls. After
+    completing the system calls, the VM Driver returns the control to the VMM. The VMM collects the results from the VM
+    App and passes them to the VM. The VM can resume its normal execution.
+
+*** FLEETING Kernel-based Virtual Machine                               :kvm:
+    KVM requires Intel VT or AMD-V.
+
+    KVM is combined with QEMU to emulate processors and IO devices. IO communication between the virtual and physical
+    system is done through VirtIO. 
