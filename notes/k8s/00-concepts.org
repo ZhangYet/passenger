@@ -1,0 +1,32 @@
+#+TITLE: Concepts
+* SKIP Components                                                       :k8s:
+
+  #+CAPTION: The components of a k8s cluster
+  [[https://d33wubrfki0l68.cloudfront.net/2475489eaf20163ec0f54ddc1d92aa8d4c87c96b/e7c81/images/docs/components-of-kubernetes.svg]]
+** PERMANENT Control Plane Components
+   The control plane make global decisions, such as scheduling.
+*** PERMANENT kube-apiserver                                      :apiserver:
+    The kube-apiserver can be scale horizontally. It exposes the k8s api.
+*** PERMANENT etcd                                                     :etcd:
+    k8s uses etcd as the persistence store.
+*** PERMANENT kube-scheduler                                      :scheduler:
+    The scheduler watches new created pods without an assigned node, and selects a node for them.
+*** PERMANENT kube-controller-manager                            :controller:
+    Control plane component that runs [[https://kubernetes.io/docs/concepts/architecture/controller/][controller]] processes.
+*** PERMANENT cloud-controller-manager                           :controller:
+    It's optional.
+** PERMANENT Node Components
+*** PERMANENT kubelet                                               :kubelet:
+    An agent that runs on each node in the cluster. It makes sure that containers are running in a Pod.
+*** PERMANENT kube-proxy
+    kube-proxy is a network proxy that runs on each node in your cluster, implementing part of the Kubernetes Service concept.
+*** PERMANENT Container runtime
+    The container runtime is the software that is responsible for running containers.
+** PERMANENT Addons
+   Addons use Kubernetes resources (DaemonSet, Deployment, etc) to implement cluster features. Because these are
+   providing cluster-level features, namespaced resources for addons belong within the kube-system namespace.
+*** PERMANENT DNS                                                       :dns:
+    DNS is a required addon.
+*** SKIP Web UI (Dashboard)
+*** SKIP Container Resource Monitoring
+*** SKIP Cluster-level Logging 
