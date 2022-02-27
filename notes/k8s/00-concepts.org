@@ -1,6 +1,7 @@
 #+TITLE: Concepts
-* SKIP Components                                                       :k8s:
-
+* PERMANENT Components                                                  :k8s:
+  [[https://kubernetes.io/docs/concepts/overview/components/][Offical docs]]
+  
   #+CAPTION: The components of a k8s cluster
   [[https://d33wubrfki0l68.cloudfront.net/2475489eaf20163ec0f54ddc1d92aa8d4c87c96b/e7c81/images/docs/components-of-kubernetes.svg]]
 ** PERMANENT Control Plane Components
@@ -30,3 +31,4 @@
 *** SKIP Web UI (Dashboard)
 *** SKIP Container Resource Monitoring
 *** SKIP Cluster-level Logging 
+* FLEETING [[https://kubernetes.io/docs/concepts/services-networking/][Service Networking]]                                       :network:
