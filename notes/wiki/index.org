@@ -7,3 +7,4 @@
 #+INCLUDE: "./page_fault.org" :minlevel 1
 #+INCLUDE: "./rss.org" :minlevel 1
 #+INCLUDE: "./elf.org" :minlevel 1
+#+INCLUDE: "./nat.org" :minlevel 1

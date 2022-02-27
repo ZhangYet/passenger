@@ -32,3 +32,15 @@
 *** SKIP Container Resource Monitoring
 *** SKIP Cluster-level Logging 
 * FLEETING [[https://kubernetes.io/docs/concepts/services-networking/][Service Networking]]                                       :network:
+** FLEETING The Kubernetes network model
+   Every pod gets its IP.
+
+   Fundamental requirements on networking implements:
+
+   1. pods on a node can communicate with all pods on all nodes without [[file:f:/tonic/Documents/GitHub/passenger/notes/wiki/nat.org::*\[\[https://en.wikipedia.org/wiki/Network_address_translation\]\[NAT\]\]][NAT]].
+   2. agents on a node (e.g. system daemons, kubelet) can communicate with all pods on that node.
+   3. pods in the host network(Fot those platforms support Pods running in the host network) can communicate with all
+      pods on all nodes without NAT.
+
+   Containers in the same pod share the same network namespace: same IP and MAC. This is called the "IP-per-pod"
+   model. Containers in a pod is like processes in a VM.
