@@ -1,0 +1,8 @@
+* 随手记的笔记
+** FLEETING [[https://www.kernel.org/doc/html/latest/core-api/gfp_mask-from-fs-io.html][GFP_NOFS]]                                          :filesystem:io:
+** FLEETING [[https://man7.org/linux/man-pages/man2/cacheflush.2.html][cacheflush]]                                                   :io:
+** FLEETING [[https://en.wikipedia.org/wiki/Memory_barrier][memroy barrier]]                      :memory_barrier:memory_fence:
+   问题见：[[file:~/Dropbox/working_daily/202203.org::*整理周五的问题][周五问题整理]]。
+** FLEETING [[https://github.com/google/gvisor/blob/master/test/syscalls/linux/mmap.cc][Robin 在 gvisor 里面的测试]]
+** FLEETING [[https://man7.org/linux/man-pages/man2/mprotect.2.html][mprotect]]                                                 :memory:
+** FLEETING [[https://spdk.io/doc/about.html][SPDK]]                                               :spdk:storage:
