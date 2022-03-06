@@ -1,0 +1,13 @@
+* FLEETING GFP Flags                                             :gfp:memory:
+  The [[https://www.kernel.org/doc/html/latest/core-api/memory-allocation.html][GFP flags]] control allocators behavior. GFP means "get free pages".
+* PERMANENT GFP_NOIO/GFP_NOFS
+  GPF_NOIO/GPF_NOFS is one of the GFP flags, which is used to prevent recursion deadlocks caused by direct memory
+  reclaim calling back into the FS or IO paths and blocking on already held resources.
+
+  #+BEGIN_QUOTE
+  A GFP_NOFS allocation is not allowed to perform any filesystem calls, while GFP_NOIO disallows the initiation of any
+  I/O at all. They are used primarily in the filesystem and virtual memory code where an allocation may be allowed to
+  sleep, but recursive filesystem calls would be a bad idea.
+  #+END_QUOTE
+
+  See this [[https://stackoverflow.com/a/34525124][answer]] for an example.

@@ -1,0 +1,7 @@
+#+TITLE: memory
+#+OPTIONS: ^:nil
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+
+This note collection is for linux memory.
+
+#+INCLUDE: "./gfp.org" :minlevel 1
