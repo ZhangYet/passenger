@@ -6,3 +6,9 @@
 * numactl                                                              :numa:
 ** numactl --hardware
    To check if the bios enable the numa function.
+* exec                                                                   :io:
+  #+BEGIN_SRC bash
+    exec 6<&FILE # Like file descriptor to #6
+    exec 6<&-    # close fd #6
+  #+END_SRC
+  see https://tldp.org/LDP/abs/html/x17974.html
