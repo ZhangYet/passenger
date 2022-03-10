@@ -1,5 +1,6 @@
 #+TITLE: common commandline tools
 #+OPTIONS: ^:nil
+#+OPTIONS: num:nil
 #+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
 * dmidecode                                                            :bios:
   ~dmidecode~ is to get smbios info. It needs sudo permission.
@@ -12,3 +13,29 @@
     exec 6<&-    # close fd #6
   #+END_SRC
   see https://tldp.org/LDP/abs/html/x17974.html
+* declare                                                           :declare:
+  We can use declare to define a variable with type and list environment variables.
+* $RANDOM                                                            :random:
+  It's an internal Bash function that returns a pseudorandom integer in [0, 32767].
+* ${#string}                                                         :string:
+  expr length $string
+  #+BEGIN_SRC bash
+    stringZ=abcABC123ABCabc
+    echo ${#stringZ}  # 15
+  #+END_SRC
+* expr match "$string" '$substring'                               :re:string:
+  Expr the length of matching substring at beginning of string. $substring is a regular expression.
+  #+BEGIN_SRC bash
+    stringZ=abcABC123ABCabc
+    #       |------|
+    #       12345678
+    echo `expr match "$stringZ" 'abc[A-Z]*.2'`   # 8
+  #+END_SRC
+* expr index $string $substring                                      :string:
+  Numerical position in $string of first character in $substring that matches.
+  #+BEGIN_SRC bash
+    stringZ=abcABC123ABCabc
+    #       123456 ...
+    echo `expr index "$stringZ" C12`
+  #+END_SRC
+* Substring Extraction
