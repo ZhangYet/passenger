@@ -17,7 +17,7 @@ Some options are universal:
   * ~MMTESTS~: A list of what tests will be run.
   * ~AUTO_PACKAGE_INSTALL~: yes/no
   * ~MMTESTS_NUMA_POLICY~: decide NUMA policy. This will be the most concerned option.
-* FLEETING Configure About NUMA                                        :NUMA:
+* PERMANENT Configure About NUMA                                       :NUMA:
 The value of ~MMTESTS_NUMA_POLICY~ is related to ~numad~ and ~numactl~.
 ** numad
 [[https://linux.die.net/man/8/numad][numad]] is a user-level daemon that provides placement advice and process management for efficient use of CPUs and memory
