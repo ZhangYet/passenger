@@ -30,6 +30,60 @@ breach my trust. 辜负我的信任。
 
 You know in due cause what action I'm taking.
 
+* 0308
+
+** Be miles away
+
+to not be conscious of what is happening around you because you are thinking about something else.
+
+#+BEGIN_EXAMPLE
+I was miles away. 
+#+END_EXAMPLE
+
+** get sth off your chest
+
+to tell someone about something that has been worrying you or making you feel guilty for a long time.
+
+** on the line
+
+at risk of failing or being harmed.
+
+#+BEGIN_EXAMPLE
+My job is on the line.
+#+END_EXAMPLE
+
+** instinct
+
+the way people or animals naturally react or behave, without having to think or learn about it.
+
+#+BEGIN_EXAMPLE
+All his instincts told him to stay near the car and wait for help.
+#+END_EXAMPLE
+
+** blimey
+an expression of surprise.
+
+** cope
+to deal successfully with a difficult situation:
+#+BEGIN_EXAMPLE
+You're coping with the thread of redundancy well.
+#+END_EXAMPLE
+
+** nurture
+
+to take care of, feed, and protect someone or something, especially young children or plants, and help him, her, or it
+to develop.
+#+BEGIN_EXAMPLE
+She wants to stay at home and nurture her children.
+#+END_EXAMPLE
+
+** precarious
+
+in a dangerous state because of not being safe or not being held in place firmly.
+#+BEGIN_EXAMPLE
+The lorry was lodged in a very precarious way, with its front wheels hanging over the cliff.
+#+END_EXAMPLE
+
 * 0310
 
 We're just tackling the cleanup. 我们在搞清洁。
