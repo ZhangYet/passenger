@@ -32,6 +32,8 @@ You know in due cause what action I'm taking.
 
 * 0308
 
+Charactors: Neil, Tracy, Jassa, 
+
 ** Be miles away
 
 to not be conscious of what is happening around you because you are thinking about something else.
@@ -84,18 +86,51 @@ in a dangerous state because of not being safe or not being held in place firmly
 The lorry was lodged in a very precarious way, with its front wheels hanging over the cliff.
 #+END_EXAMPLE
 
-* 0310
+* 0309
 
-We're just tackling the cleanup. 我们在搞清洁。
+** burst someone's bubble
+shatter someone's illusions about something or destroy their sense of well-being.
+#+BEGIN_EXAMPLE
+I hate to burst your bubble.
+#+END_EXAMPLE
 
+** chuck away
+If you chuck something away, you throw it away or waste it.
+#+BEGIN_EXAMPLE
+I'm just going to chuck away this rubbish pit.
+#+END_EXAMPLE
+
+** shattered
+exhausted.
+#+BEGIN_EXAMPLE
+You look shattered
+#+END_EXAMPLE
+
+** hold still
+used to tell someone to stop moving.
+#+BEGIN_EXAMPLE
+Hold still, this won't hurt.
+#+END_EXAMPLE
+
+** impetus
+
+a driving force
+
+** Thinking outside the box
+
+see [[https://en.wikipedia.org/wiki/Thinking_outside_the_box][the wiki]].
+
+** first and foremost
+most importantly; more than anything else.
+#+BEGIN_EXAMPLE
+he considered himself first and foremost a writer
+#+END_EXAMPLE
+
+** others
 I am quite tight for time.
 
 ...while Rex conducts the interview. Rex 进行采访的时候。
 
 unorthodox: 不正统的；
 
-impetus: a driving force
-
-momentum
-
-* 0311
+* 0310
