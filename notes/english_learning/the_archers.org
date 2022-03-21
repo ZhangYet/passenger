@@ -134,3 +134,20 @@ I am quite tight for time.
 unorthodox: 不正统的；
 
 * 0310
+
+** soaking laundry
+正在清洗的衣物。
+#+BEGIN_EXAMPLE
+Now I'm left with a load of soaking laundry.
+#+END_EXAMPLE
+
+** thrown money down the drain
+浪费钱
+#+BEGIN_EXAMPLE
+That's more money down the drain. 
+#+END_EXAMPLE
+
+** emotional
+#+BEGIN_EXAMPLE
+Just feeling a bit emotional.
+#+END_EXAMPLE
