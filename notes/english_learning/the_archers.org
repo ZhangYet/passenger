@@ -151,3 +151,23 @@ That's more money down the drain.
 #+BEGIN_EXAMPLE
 Just feeling a bit emotional.
 #+END_EXAMPLE
+
+* 0313
+
+** snap out of it
+to stop experiencing something unpleasant or stop behaving in a negative way
+#+BEGIN_EXAMPLE
+I was depressed, and I couldn't snap out of it.
+#+END_EXAMPLE
+
+** make amends
+to do something to correct a mistake that one has made or a bad situation that one has caused.
+#+BEGIN_EXAMPLE
+She tried to make amends by apologizing to him.
+#+END_EXAMPLE
+
+** AWOL
+abbreviation for absent without leave: used to say that a member of the armed forces is away without permission:
+#+BEGIN_EXAMPLE
+go AWOL
+#+END_EXAMPLE
