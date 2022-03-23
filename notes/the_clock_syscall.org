@@ -1,0 +1,30 @@
+#+TITLE: 从 ltp testcase 到 linux clock sys call
+#+AUTHOR: Dantezy <zhangyet@gmail.com>
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+* 背景
+  [[https://github.com/linux-test-project/ltp][ltp]] 是 linux 测试集合，[[https://kernelci.org/][kernelci]] 会在集成测试中运行 ltp 测试。我发现其中 ltp-timer 有一些测试 case 无法跑通，其中
+  clock_settime 的 8-1 测试会偶发性失败（10次里面会失败1~2次），见[[https://github.com/linux-test-project/ltp/issues/926][这个 issue]]。这个测试涉及 ~clock_gettime~,
+  ~clock_settime~, 和 ~clock_nanosleep~ 三个 sys call。 我尝试阅读它们的代码去解决这个 case 的问题。
+
+  [TBD] 描述 ltp clock_settime 8-1.
+* syscall 与 vDSO
+  为了避免 syscall 带来的开销，Linux 引入了 vDSO 技术。
+
+  [TBD: 简述 vDSO 的概念，以及使用 ltrace 确认是否 syscall]
+* 如何查看 syscall 的实现
+  主要是遵循 [[https://0xax.gitbooks.io/linux-insides/content/SysCall/linux-syscall-1.html][Linux Inside syscall 第一节]]的思路，另外参看 [[https://lwn.net/Articles/604287/][Anatomy of a system call, part 1]]：
+  #+BEGIN_QUOTE
+  These SYSCALL_DEFINEn() macros are the standard way for kernel code to define a system call, where the n suffix indicates the argument count. 
+  #+END_QUOTE
+
+  比如说我们已知 ~clock_gettime~ 需要两个参数，那么我们可以在内核源码里面搜 ~SYSCALL_DEFINE2(clock_gettime~ 找到它的定义。
+* clock 相关的三个系统引用
+** clock_gettime
+   定义在 ~kernel/time/posix-stub.c~ 中，调用链路为
+   #+BEGIN_QUOTE
+   clock_gettime -> do_clock_gettime -> ktime_get_real_ts64
+   #+END_QUOTE
+
+   [TBD: 解释 ~struct __kernel_timespec __user *, tp~ ]
+
+   
