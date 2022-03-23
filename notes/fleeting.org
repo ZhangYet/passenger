@@ -1,5 +1,5 @@
-* 随手记的笔记
-** FLEETING [[https://man7.org/linux/man-pages/man2/cacheflush.2.html][cacheflush]]                                                   :io:
+* 随手记的笔记                                                           :io:
+** FLEETING [[https://man7.org/linux/man-pages/man2/cacheflush.2.html][cacheflush]]
 ** FLEETING [[https://en.wikipedia.org/wiki/Memory_barrier][memroy barrier]]                      :memory_barrier:memory_fence:
    问题见：[[file:~/Dropbox/working_daily/202203.org::*整理周五的问题][周五问题整理]]。
 ** FLEETING [[https://github.com/google/gvisor/blob/master/test/syscalls/linux/mmap.cc][Robin 在 gvisor 里面的测试]]

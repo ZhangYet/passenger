@@ -1,6 +1,7 @@
 #+TITLE: 从 ltp testcase 到 linux clock sys call
 #+AUTHOR: Dantezy <zhangyet@gmail.com>
 #+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+#+OPTIONS: ^:nil
 * 背景
   [[https://github.com/linux-test-project/ltp][ltp]] 是 linux 测试集合，[[https://kernelci.org/][kernelci]] 会在集成测试中运行 ltp 测试。我发现其中 ltp-timer 有一些测试 case 无法跑通，其中
   clock_settime 的 8-1 测试会偶发性失败（10次里面会失败1~2次），见[[https://github.com/linux-test-project/ltp/issues/926][这个 issue]]。这个测试涉及 ~clock_gettime~,
@@ -19,6 +20,104 @@
 
   比如说我们已知 ~clock_gettime~ 需要两个参数，那么我们可以在内核源码里面搜 ~SYSCALL_DEFINE2(clock_gettime~ 找到它的定义。
 * clock 相关的三个系统引用
+** clock_settime
+   定义在 ~/kernel/time/posix-stub.c~ 中，调用链路为
+   #+BEGIN_QUOTE
+   clock_settime -> do_sys_settimeofday64 -> do_settimeofday64
+   #+END_QUOTE
+
+   首先会检查参数，我们只能设置 ~CLOCK_REALTIME~ 类型的时钟。然后会将 tp 复制到 new_tp 中。[TBD 研究 copy_from_user
+   的作用，以及 ~get_timespec64~ 里面先创建一个 timespec64 再赋值给 new_tp 的做法，此外还有 ~__user~ 的含义]
+   #+BEGIN_SRC
+        struct timespec64 new_tp;
+
+	if (which_clock != CLOCK_REALTIME)
+		return -EINVAL;
+	if (get_timespec64(&new_tp, tp))
+		return -EFAULT;
+   #+END_SRC
+
+   主要的工作都在最后
+   #+BEGIN_SRC
+        return do_sys_settimeofday64(&ne_tp, NULL);
+   #+END_SRC
+
+   ~do_sys_settimeofday64~ 定义在 ~/kernel/time/time.c~ 中。
+   #+BEGIN_SRC
+     int do_sys_settimeofday64(const struct timespec64 *tv, const struct timezone *tz)
+   #+END_SRC
+
+   因为 ~clock_settime~ 里面传入的 timezone 参数是 NULL 所以相关逻辑我们会跳过。
+
+   #+BEGIN_SRC
+        static int firsttime = 1;
+	int error = 0;
+
+	if (tv && !timespec64_valid_settod(tv))
+		return -EINVAL;
+
+	error = security_settime64(tv, tz);
+	if (error)
+		return error;
+   #+END_SRC
+
+   ~timespec64_valid_settod~ 会检查传入的 timespec64 参数，不允许传入早于1970年的时间，也不允许传入30年后的数值
+   （防止上溢），timespec64 里面纳秒的数值也不能大于1秒（不然就应该算进秒那里[TBD 应该补充 timespec64 的定义]）。
+
+   ~security_settime64~ 实际上只是调用了 ~cap_settime~ 检查了权限，不知道为什么把 timespec64 和 timezone 传进去。
+
+   跳过 timezone 相关的逻辑，我们来到最后
+
+   #+BEGIN_SRC
+        if (tv)
+              return do_settimeofday64(tv);
+   #+END_SRC
+
+   ~do_settimeofday64~ 定义在 ~kernel/time/timekeeping.c~.
+
+   [TBD: 解释 tk_core （它的 init 是 ~timekeeping_init~ 但我还没有找它在什么地方调用）]
+
+   #+BEGIN_SRC
+        struct timekeeper *tk = &tk_core.timekeeper;
+	struct timespec64 ts_delta, xt;
+	unsigned long flags;
+	int ret = 0;
+
+	if (!timespec64_valid_settod(ts))
+		return -EINVAL;
+   #+END_SRC
+
+   首先我们会取的 tk_core.timekeeper 的引用。[TBD: 我不是很明白这里又检查了一次 ts 的合法性，可能 ~do_settimeofday64~
+   还有别的调用。]
+
+   #+BEGIN_SRC
+        raw_spin_lock_irqsave(&timekeeper_lock, flags);
+	write_seqcount_begin(&tk_core.seq);
+   #+END_SRC
+
+   先上一个保存当前中断状态的自旋锁，然后对 ~tk_core.seq~ 上一个序列锁，这个锁在 ~clock_gettime~ 的时候会用。[TBD:
+   解释这两个锁。]
+
+   #+BEGIN_SRC
+        timekeeping_forward_now(tk);
+
+	xt = tk_xtime(tk);
+	ts_delta.tv_sec = ts->tv_sec - xt.tv_sec;
+	ts_delta.tv_nsec = ts->tv_nsec - xt.tv_nsec;
+
+        if (timespec64_compare(&tk->wall_to_monotonic, &ts_delta) > 0) {
+		ret = -EINVAL;
+		goto out;
+	}
+   #+END_SRC
+
+   ~timekeeping_forward_now~ 会读一次时钟，更新数据，[TBD: timekeeping_forward_now 会改变 tk_core.timekeeper
+   里面一些数据，要解释这些数据的含义。] ~tk_time(tk)~ 会从 tk 中读取 tv_sec 和 tv_nsec 返回一个新的 timespec64。
+   然后我们用要设置的时间 ts 跟 xt 相减，计算出的 ts_delta 来，这个 ts_delta 要比 wall_to_monotonic 小。[TBD:
+   wall_to_monotonic: CLOCK_REALTIME to CLOCK_MONOTONIC offset, 但是这个 ts_delta 是什么没有说清楚哦]
+
+   
+   
 ** clock_gettime
    定义在 ~kernel/time/posix-stub.c~ 中，调用链路为
    #+BEGIN_QUOTE
