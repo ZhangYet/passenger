@@ -171,3 +171,68 @@ abbreviation for absent without leave: used to say that a member of the armed fo
 #+BEGIN_EXAMPLE
 go AWOL
 #+END_EXAMPLE
+
+* 0314
+
+** vouch
+assert or confirm as a result of one's own experience that something is true or accurately so described.
+#+BEGIN_EXAMPLE
+Jacob vouched for the physical condition of the fish, but suggested that she may be neglected.
+#+END_EXAMPLE
+
+** neglected
+suffering a lack of proper care.
+
+** mediator
+a person who attempts to make people involved in a conflict come to an agreement; a go-between.
+#+BEGIN_EXAMPLE
+If you two cannot resolve this argument on your own, we'll have to bring in a mediator
+#+END_EXAMPLE
+
+** conciliatory
+Intended to gain goodwill or favor or to reduce hostility : tending or intended to conciliate.
+
+* 0315
+
+** consultant
+顾问
+
+** advocate
+n. one who defends or maintains a cause or proposal
+
+v. to support or argue for (a cause, policy, etc.) : to plead in favor of
+
+#+BEGIN_EXAMPLE
+They advocated a return to traditional teaching methods.
+#+END_EXAMPLE
+
+** solicitor
+A British lawyer who advises clients, represents them in the lower courts, and prepares cases for barristers to try in higher courts
+
+* 0316
+
+** baptism
+洗礼
+
+** equivocal
+模棱两可的
+
+** tetchy
+烦躁不安 irritably or peevishly sensitive
+
+* 0317
+
+* 0320
+
+* 0321
+
+** excruciating
+苦不堪言
+
+** devastate
+brought to a state of ruin or destruction.
+#+BEGIN_EXAMPLE
+I'll be as devastated as you if I lose my job.
+#+END_EXAMPLE
+
+* 0323
