@@ -5,3 +5,70 @@
 ** FLEETING [[https://github.com/google/gvisor/blob/master/test/syscalls/linux/mmap.cc][Robin 在 gvisor 里面的测试]]
 ** FLEETING [[https://man7.org/linux/man-pages/man2/mprotect.2.html][mprotect]]                                                 :memory:
 ** FLEETING [[https://spdk.io/doc/about.html][SPDK]]                                               :spdk:storage:
+** FLEETING avocado notes                                           :avocado:
+   ~avocado config~ print all configs.
+
+   How avocado parse tests:
+
+   [[https://avocado-framework.readthedocs.io/en/latest/_images/diagram.png]]
+*** PERMANENT avocado test types
+    1. simple: Any executable in your box. The criteria for PASS/FAIL is the return code of the executable. If it
+       returns 0, the test PASSes, if it returns anything else, it FAILs.
+    2. Python unittest: The discovery of classical Python unittest is also supported.
+    3. Instrumented: These are tests written in Python or BASH with the Avocado helpers that use the Avocado test API.
+    4. Tap: TAP tests are pretty much like Simple tests in the sense that they are programs that will executed.The
+       difference is that the test result will be decided based on the produced output, that should be in Test Anything
+       Protocol format.
+*** What can avocado do
+    - Note taken on [2022-03-27 Sun 16:14] \\
+      https://avocado-framework.readthedocs.io/en/latest/guides/user/chapters/introduction.html
+    1. Run multiple tests in a single job;
+    2. Use a different runner(but only two runners these days);
+    3. Interrupt tests: ~--failfast~ can cancel the jobs not stated yet;
+    4. The hint files to indicate what type of jobs;
+    5. The runner outputs are under ~$HOME/avocado/job-results~;
+    6. Collect system info, default is on;
+*** Basic concepts
+    1. Test Resolution: avocado analyzes files to find tests;
+    2. Job Id: a random SHA1 string that uniquely identifies a given job.
+    3. Test References.
+    4. Test Status.
+*** Basic Operations
+    1. replay: ~avocado replay latest~ or ~avocado replay $JOB_ID/$JOB_REFERENCE~;
+    2. diff: ~avocado diff $JOB_ID1 $JOB_ID2~;
+    3. list: ~--dry-run~ or ~avocado list~, we can also use filter when using list;
+*** Results Specification
+    On a machine that executed Avocado, job results are available under ~[job-results]/job-[timestamp]-[short job ID].~
+*** Configuring
+    The Avocado config file format is based on the (informal) INI file specification, that is implemented by Python’s
+    configparser.
+
+    Command-line options always will have the highest precedence during the configuration parsing.
+
+    The parse order is:
+    1. /etc/avocado/avocado.conf
+    2. /etc/avocado/conf.d/*.conf
+    3. avocado.plugins.settings
+    4. ~/.config/avocado/avocado.conf
+
+    ~avocado config~ can read config content.
+*** Managing Requirements
+    We can define requirements of tests.
+    Define in python: ~To define a requirement for the test, use the test’s docstring with the format of keywords
+    :avocado: requirement=~
+    #+BEGIN_SRC
+from avocado import Test
+
+
+class PassTest(Test):
+    """
+    :avocado: requirement={"type": "package", "name": "hello"}
+    """
+    def test(self):
+        """
+        A success test
+        """
+    #+END_SRC
+
+*** 
+*** 
