@@ -5,7 +5,7 @@
 ** FLEETING [[https://github.com/google/gvisor/blob/master/test/syscalls/linux/mmap.cc][Robin 在 gvisor 里面的测试]]
 ** FLEETING [[https://man7.org/linux/man-pages/man2/mprotect.2.html][mprotect]]                                                 :memory:
 ** FLEETING [[https://spdk.io/doc/about.html][SPDK]]                                               :spdk:storage:
-** FLEETING avocado notes                                           :avocado:
+** PERMANENT avocado notes                                          :avocado:
    ~avocado config~ print all configs.
 
    How avocado parse tests:
@@ -70,5 +70,3 @@ class PassTest(Test):
         """
     #+END_SRC
 
-*** 
-*** 
