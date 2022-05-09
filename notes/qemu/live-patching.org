@@ -1,0 +1,38 @@
+* qemu live patching
+** PERMANENT [[https://blogs.oracle.com/linux/post/qemu-live-update][QEMU Live Update]]                                          :qemu:
+#+BEGIN_QUOTE
+The guest pauses briefly, for less than 100 milliseconds in our prototype, without loss of internal state or external connections.
+#+END_QUOTE
+I can't believe they can be so fast in prodcution.
+
+The disadvantage of live migration: the dependencies of the copy converages. Time, memory, and network bandwidth cost
+are high.
+*** Implementation
+
+Use [[https://lore.kernel.org/lkml/1595869887-23307-1-git-send-email-anthony.yznaga@oracle.com/][MADV_DOEXEC]] to preserve the guest RAM. MADV_DOEXEC is a madvice[fn:1] option. This option preserves the physical
+pages and virtual mappings of a memory range, and works for MAP_ANON[fn:2] memory. Briefly, madvise sets a flag in each
+vma[fn:3] struct covering the range, and exec copies flagged vma's from the old mm struct to the new mm, much like
+fork.
+
+#+CAPTION: the live update sequence
+#+NAME: the live update sequence
+[[./images/work_flow.jpeg
+]]
+**** cprsave
+
+cprsave is a new QEMU QMP/HMP command[fn:4]
+**** cprload
+*** External Connections
+
+Save file descriptors with ~close-on-exec~ as environment variables. Upon restart, Qemu finds the fd env variables,
+reuses them with the corresponding devices.
+
+** FLEETING [[https://www.youtube.com/watch?v=Qujgm-EPyvY][[2020] QEMU Live Update by Steven J. Sistare]]
+** Footnotes
+[fn:4] https://wiki.qemu.org/Documentation/QMP 
+
+[fn:3] virtual memory area https://www.cs.columbia.edu/~junfeng/13fa-w4118/lectures/l20-adv-mm.pdf
+
+[fn:2] https://man7.org/linux/man-pages/man2/mmap.2.html
+
+[fn:1] https://man7.org/linux/man-pages/man2/madvise.2.html
