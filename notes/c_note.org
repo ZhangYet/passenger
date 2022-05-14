@@ -1,0 +1,80 @@
+* [[https://tinylab-1.gitbook.io/cbook/][C 语言编程透视]]
+** FLEETING gcc 编译的背后                                     :compiler:gcc:
+*** 预处理                                                            :macro:
+可以用 ~gcc -E hello.c~ 获得预处理后的结果。
+
+#+BEGIN_SRC c
+  #ifdef DEBUG
+  printf("this code is for debugging\n");
+  #endif
+#+END_SRC
+
+在编译选项中加上 ~-DDEBUG~ 这个宏就会展开。这就是 ~#ifdef~ 的用处。
+*** 编译
+源代码 -> 汇编
+
+~gcc -S~ 查看生成的汇编语言。
+
+~gcc -fsyntax-only~ 只做语法检查。
+
+[[https://www.cs.usfca.edu/~cruse/cs630f06/][汇编课程]]
+
+
+*** 汇编                                                                :ELF:
+汇编代码 -> 机器码
+
+可以用 ~gcc -c~ 或 ~as~ 生成机器码。
+
+可以用 ~file~ 查看文件属性。我们平时生成 ~a.out~ 文件就是机器码文件。用 ~file~ 查询可以看到 ~a.out~ 其实是 ELF 格式的文
+件。
+
+binutils 库包括了 nm, objdump, objcopy, strip 等工具。此外还有 readelf.
+
+ELF 文件的结构：
+
+1. header；
+2. 程序头表，描述可执行文件和可共享库；
+3. section headers table, 链接可重定位文件或可执行文件或共享库；
+
+~ar rcsv libmyprintf.a myprintf.o~ 生成静态链接库。
+
+#+BEGIN_QUOTE
+可以分别通过 readelf 文件的 -h，-l 和 -S 参数查看 ELF 文件头（ELF Header）、程序头部表（Program Headers Table，段表）和节区表（Section Headers Table）。
+#+END_QUOTE
+
+动态链接库编译时和静态链接库类似，但它是在执行时搜索库（在 LD_LIBRARY_PATH 里面搜索）。
+
+**** ELF 主体： 节区
+#+BEGIN_QUOTE
+在可重定位文件中，节区表描述的就是各种节区本身；而在可执行文件中，程序头描述的是由各个节区组成的段（Segment），以便程序运行时动态装载器知道如何对它们进行内存映像，从而方便程序加载和运行。
+#+END_QUOTE
+
+用 ~readelf -S myprintf.o~ 查看节区。
+
+可以用 -j 参数查看不同的节区。
+
+#+BEGIN_SRC bash
+  objdump -d -j .text   myprintf.o
+#+END_SRC
+
+利用 ~readelf -r myprintf.o~ 查看重定向信息（可以看到有哪些 relocation selction）。
+
+可以用 ~readelf -x~ 查看各个节区的信息。
+
+#+BEGIN_QUOTE
+在上面的可重定位文件，可以看到有一个可重定位的节区，即 .rel.text，它标记了两个需要重定位的项，.rodata 和 puts。这个节区将告诉编译器这两个信息在链接或者动态链接的过程中需要重定位
+#+END_QUOTE
+
+puts 应该是系统自带的。
+
+还需要了解各个节区的含义。
+
+*** 链接
+#+BEGIN_QUOTE
+重定位是将符号引用与符号定义进行链接的过程。因此链接是处理可重定位文件，把它们的各种符号引用和符号定义转换为可执行文件中
+的合适信息（一般是虚拟内存地址）的过程。
+
+链接又分为静态链接和动态链接，前者是程序开发阶段程序员用 ld（gcc 实际上在后台调用了 ld）静态链接器手动链接的过程，而动态
+链接则是程序运行期间系统调用动态链接器（ld-linux.so）自动链接的过程。
+
+#+END_QUOTE
