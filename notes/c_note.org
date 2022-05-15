@@ -1,5 +1,5 @@
 * [[https://tinylab-1.gitbook.io/cbook/][C 语言编程透视]]
-** FLEETING gcc 编译的背后                                     :compiler:gcc:
+** PERMANENT gcc 编译的背后                                    :compiler:gcc:
 *** 预处理                                                            :macro:
 可以用 ~gcc -E hello.c~ 获得预处理后的结果。
 
@@ -77,4 +77,62 @@ puts 应该是系统自带的。
 链接又分为静态链接和动态链接，前者是程序开发阶段程序员用 ld（gcc 实际上在后台调用了 ld）静态链接器手动链接的过程，而动态
 链接则是程序运行期间系统调用动态链接器（ld-linux.so）自动链接的过程。
 
+#+END_QUOTE
+
+静态链接主要是读入合格可重载文件，从文件头读入各个节区，计算各个节区的的虚拟内存位置，处理需要重定位的文件。
+
+gcc 通过 collect2 调用 ld.
+
+这里有一段分析比较精彩：
+
+首先用 gcc -v 找到链接时候调用的指令，然后逐步去掉不需要的链接，发现不把 crt1.o 链接进来，最后生成的可执行文件会在执行的
+时候遇到段错误，然后用 gdb 查看，在代码最后（return 下面的 ~}~ ）打断点，运行到这一步还是没有问题，但是继续单步就会出现
+~0x00000001 in ?? ()~ 的错误，然后看汇编代码，发现这是 ~ret~ 语句，把这个汇编改成 ~_exit~ （就是在代码里面把 ~return 0;~
+改成 ~_exit(0);~ ）可以解决问题。再回到调试，发现 0x00000001 刚好是之前调试时看到的程序返回后的位置，即 eip。
+
+#+BEGIN_QUOTE
+原因是不链接那些额外的文件时相当于没有进行初始化操作，如果在程序的最后执行 ret 汇编指令，程序将无法获得正确的 eip，从而
+无法进行后续的动作。
+
+_start 竟然是真正的程序入口。
+#+END_QUOTE
+
+这部分涉及汇编，不是很懂。
+
+** PERMANENT 程序执行的一刹那
+通过 ~strace -f -o strace.out /bin/login~ 把登录过程的系统调用保存在 strace.out 中。
+
+#+BEGIN_EXAMPLE
+     fork     execve         execve         fork           execve
+init --> init --> /sbin/getty --> /bin/login --> /bin/login --> /bin/bash
+#+END_EXAMPLE
+
+#+BEGIN_QUOTE
+如果用过 Lilo 或者 Grub 这些操作系统引导程序，可能会用到 Linux 内核的一个启动参数 init，当忘记密码时，可能会把这个参数设
+置成 /bin/bash，让系统直接进入命令行，而无须输入帐号和密码，这样就可以方便地把登录密码修改掉。
+
+这个 init 参数是个什么东西呢？通过 man bootparam 会发现它的秘密，init 参数正好指定了内核启动后要启动的第一个程序，
+而如果没有指定该参数，内核将依次查找 /sbin/init，/etc/init，/bin/init，/bin/sh，
+如果找不到这几个文件中的任何一个，内核就要恐慌（panic）了，并挂（hang）在那里一动不动了
+（注：如果 panic=timeout 被传递给内核并且 timeout 大于 0，那么就不会挂住而是重启）。
+
+更多系统启动的细节，看看 man boot-scripts 吧。
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+内置命令比磁盘文件中的程序优先被 bash 执行。原因应该是内置命令避免了不必要的 fork/execve 调用，对于采用类似算法实现的功能，内置命令理论上有更高运行效率。
+#+END_QUOTE
+
+bash 执行的优先级：
+
+#+BEGIN_QUOTE
+先    alias --> function --> builtin --> program   后
+#+END_QUOTE
+
+
+
+** FLEETING 动态符号链接的细节
+*** 基本概念                                                            :ELF:
+#+BEGIN_QUOTE
+ELF 是 Linux 支持的一种程序文件格式，本身包含重定位、执行、共享（动态链接库）三种类型（man elf）。
 #+END_QUOTE
