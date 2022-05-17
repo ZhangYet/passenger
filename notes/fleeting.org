@@ -69,4 +69,9 @@ class PassTest(Test):
         A success test
         """
     #+END_SRC
+** PERMANENT deb package
+*** [[https://www.debian.org/doc/debian-policy/ch-relationships.html#s-virtual][Provides]]
+The control fields ~Provides~ give a virtual package which have a different name with the package. For example if a
+package A ~Provides~ B, and other packages depends on B, we can install A to resolve the dependency.
+*** [[https://www.debian.org/doc/debian-policy/ch-relationships.html#conflicting-binary-packages-conflicts][Conflict]]
 
