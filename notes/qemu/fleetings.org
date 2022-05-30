@@ -1,0 +1,3 @@
+* 随手记
+** 切换 monitor 模式                                           :qemu:monitor:
+Ctrl-a c
