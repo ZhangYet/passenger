@@ -1,3 +1,38 @@
 * FLEETING 内存映射
 ** 概述
+文件映射：将文件的一部分映射到内存中。
+
+匿名映射：可以理解成将一个虚拟文件初始化成0，存在内存中。
+
+私有映射：MAP_PRIVATE 文件的变更对其他进程不可见。内核使用 copy-on-write 实现。对文件映射来说，变更将不会在底层文件上进
+行。
+
+公用映射：MAP_SHARED
+
+#+CAPTION: mmap 分类
+|      | 文件                                                                 | 匿名     |
+|------+----------------------------------------------------------------------+----------|
+| 私有 | 使用文件初始化一块内存区域，如可执行文件和二进制库初始化文本和数据段 | 分配内存 |
+| 共享 | 允许内存映射I/O; IPC（通过这个文件在多个进程间同步）                 | 就只有 IPC这个功能了 |
+
 ** ~mmap()~
+#+CAPTION: 接口签名
+#+BEGIN_SRC c
+  void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset); // return starting address of mapping on success
+#+END_SRC
+
+1. addr: 放映射的虚拟地址，为 NULL 时系统会自己找合适的位置，非 NULL 的时候会在给出地址附近找一个分页边界（忒麻烦了）；
+2. length: 映射的字节数，系统会取整到分页的整数倍；
+3. prot: 保护信息：见 prot 取值表；
+4. flags：最重要的当时是 MAP_PRIVATE 和 MAP_SHARED 当然还有更多的内容后续会补充；
+5. fd: 文件映射的文件描述符；
+6. offset: 文件映射时在文件重点的起点；
+
+
+#+CAPTION: prot 取值
+| value      | desc                         |
+|------------+------------------------------|
+| PROT_NONE  | 区域无法访问（那还映射个屁） |
+| PROT_READ  | 可读                         |
+| PROT_WRITE | 可写                         |
+| PROT_EXEC  | 可执行                          |
