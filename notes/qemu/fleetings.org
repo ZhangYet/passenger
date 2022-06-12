@@ -1,3 +1,5 @@
 * 随手记
 ** 切换 monitor 模式                                           :qemu:monitor:
 Ctrl-a c
+** qemu internal
+[[https://airbus-seclab.github.io/qemu_blog/][source]]
