@@ -1,0 +1,27 @@
+#+TITLE: 汇编语言简明教程
+#+OPTIONS: ^:nil
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+* PERMANENT 第一章
+* PERMANENT 第二章
+** 寻址
+1. 立即数寻址：只能用于源操作数，类型由另一个操作数类型或指令决定；
+2. 寄存器寻址：通用寄存器寻址；
+3. 存储器寻址：访问的数据存放在主存；
+
+源操作数可以是立即数、寄存器和存储器；目的操作数不能是立即数；两个操作数不能同时是存储器。   
+* FLEETING 第三章
+** MOV
+** XCHG
+交换源与目标。
+** PUSH and POP
+#+BEGIN_SRC asm
+  PUSH ax ; SP 向高位移动，将 ax 读入堆栈中
+  POP ax  ; SP 向低位移动，将数据写入 ax 中	  
+#+END_SRC
+** LEA
+获取有效地址。
+#+BEGIN_SRC asm
+  LEA si, wvar ; 获取 wvar 的地址，写入 si 中
+#+END_SRC
+** XLAT
+获取数据表中某个特定的数据项。
