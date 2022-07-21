@@ -1,0 +1,12 @@
+#+TITLE: gdb 相关笔记
+#+AUTHOR: Dantezy <zhangyet@gmail.com>
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+#+OPTIONS: ^:nil
+* 用 gdb debug qemu 问题
+
+#+BEGIN_SRC
+  file qemu-system-x86_64 // 载入程序
+  b qio_channel_restart_write // 设置断点
+  r -object iothread,id=iothr0 -device virtio-scsi,id=vscsi,iothread=iothr0 -blockdev '{"driver": "nbd","node-name":"nbd","server":{"type":"unix","path":"/tmp/nbd.sock"}}' -device scsi-hd,bus=vscsi.0,drive=nbd
+   
+#+END_SRC
