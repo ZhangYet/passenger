@@ -1,0 +1,11 @@
+#+TITLE: DaemonSet
+[[https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/][DaemonSet: the official document]]
+** PERMANENT Typical uses of a DaemonSet
+
+1. running a cluster storage daemon on every node
+2. running a logs collection daemon on every node
+3. running a node monitoring daemon on every node
+** PERMANENT Required fields
+~apiVersion~, ~kind~, ~metadata~ are needed.
+** PERMANENT Scheduler
+DaemonSet pods are scheduled by DaemonSet controller.
