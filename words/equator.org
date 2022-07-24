@@ -1,0 +1,7 @@
+* equator :bagpie:
+the great circle of the celestial sphere whose plane is perpendicular to the axis of the earth
+a great circle of the earth or a celestial body that is everywhere equally distant from the two poles and divides the surface into the northern and southern hemispheres
+a circle or circular band dividing the surface of a body into two usually equal and symmetrical parts
+the great circle on the celestial sphere midway between the celestial poles
+an imaginary line roughly parallel to the geographical equator and passing through those points where a magnetic needle has no dip
+an imaginary circle around the middle of the Earth that is the same distance from the North Pole and the South Pole

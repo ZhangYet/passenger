@@ -1,0 +1,5 @@
+* foreground :bagpie:
+the part of a scene or representation that is nearest to and in front of the spectator
+a position of prominence : forefront
+a level of computer processing at which the processor responds immediately to input to a designated high-priority task
+to bring to the foreground; especially : to give prominence or emphasis to

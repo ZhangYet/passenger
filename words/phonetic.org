@@ -1,0 +1,7 @@
+* phonetic :bagpie:
+representing the sounds and other phenomena of speech: such as
+constituting an alteration of ordinary spelling that better represents the spoken language, that employs only characters of the regular alphabet, and that is used in a context of conventional spelling
+representing speech sounds by means of symbols that have one value only
+ipa
+a set of symbols (such as the IPA) used for phonetic transcription
+any of various systems of identifying letters of the alphabet by means of code words in voice communication

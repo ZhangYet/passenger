@@ -1,0 +1,2 @@
+* cohesive :bagpie:
+exhibiting or producing cohesion or coherence

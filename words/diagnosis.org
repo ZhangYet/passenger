@@ -1,0 +1,7 @@
+* diagnosis :bagpie:
+the art or act of identifying a disease from its signs and symptoms
+the decision reached by diagnosis
+investigation or analysis of the cause or nature of a condition, situation, or problem
+drg
+the distinguishing of a disease or condition from others presenting with similar signs and symptoms
+any of the payment categories that are used to classify patients and especially Medicare patients for the purpose of reimbursing hospitals for each case in a given category with a fixed fee regardless of the actual costs incurred —called also diagnosis related group

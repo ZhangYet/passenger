@@ -1,0 +1,4 @@
+* periphery :bagpie:
+the perimeter of a circle or other closed curve; also : the perimeter of a polygon
+the external boundary or surface of a body
+the outward bounds of something as distinguished from its internal regions or center : confines

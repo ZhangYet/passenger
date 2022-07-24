@@ -1,0 +1,3 @@
+* utensil :bagpie:
+an implement, instrument, or vessel used in a household and especially a kitchen
+a useful tool or implement

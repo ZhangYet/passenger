@@ -1,0 +1,10 @@
+* intercept :bagpie:
+to stop, seize, or interrupt in progress or course or before arrival
+to receive (a communication or signal directed elsewhere) usually secretly
+to gain possession of (an opponent's pass)
+the distance from the origin to a point where a graph crosses a coordinate axis
+interception; especially : the interception of a missile by an interceptor or of a target by a missile
+a message, code, or signal that is intercepted (as by monitoring radio communications)
+the equation of a straight line in the form y = mx + b where m is the slope of the line and b is its y-intercept
+the x-coordinate of a point where a line, curve, or surface intersects the x-axis
+the y-coordinate of a point where a line, curve, or surface intersects the y-axis

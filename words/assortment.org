@@ -1,0 +1,9 @@
+* assortment :bagpie:
+the act of assorting
+the state of being assorted
+a collection of assorted things or persons
+formation of random combinations of chromosomes in meiosis and of genes on different pairs of homologous chromosomes by the passage according to the laws of probability of one of each diploid pair of homologous chromosomes into each gamete independently of each other pair
+mendel's law
+a principle in genetics: hereditary units occur in pairs that separate during gamete formation so that every gamete receives but one member of a pair —called also law of segregation
+a principle in genetics limited and modified by the subsequent discovery of the phenomenon of linkage: the different pairs of hereditary units are distributed to the gametes independently of each other, the gametes combine at random, and the various combinations of hereditary pairs occur in the zygotes according to the laws of chance —called also law of independent assortment
+a principle in genetics proved subsequently to be subject to many limitations: because one of each pair of hereditary units dominates the other in expression, characters are inherited alternatively on an all-or-nothing basis —called also law of dominance

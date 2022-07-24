@@ -1,0 +1,7 @@
+* peripheral :bagpie:
+of, relating to, involving, or forming a periphery or surface part
+of, relating to, affecting, or being part of the peripheral nervous system
+of, relating to, or being blood in the systemic circulation
+a device connected to a computer to provide communication (such as input and output) or auxiliary functions (such as additional storage)
+the part of the nervous system that is outside the central nervous system and comprises the cranial nerves excepting the optic nerve, the spinal nerves, and the autonomic nervous system
+a disease or degenerative state of the peripheral nerves in which motor, sensory, or vasomotor nerve fibers may be affected and which is marked by muscle weakness and atrophy, pain, and numbness

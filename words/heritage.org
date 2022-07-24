@@ -1,0 +1,4 @@
+* heritage :bagpie:
+property that descends to an heir
+something transmitted by or acquired from a predecessor : legacy, inheritance
+tradition

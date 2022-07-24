@@ -1,0 +1,5 @@
+* nautical :bagpie:
+of, relating to, or associated with seamen, navigation, or ships
+any of various units of distance used for sea and air navigation based on the length of a minute of arc of a great circle of the earth and differing because the earth is not a perfect sphere: such as
+a British unit equal to 6080 feet (1853.2 meters)
+an international unit equal to exactly 1852 meters (6076.115 feet or 1.15 statute miles) used officially in the U.S. since July 1, 1954

@@ -1,0 +1,2 @@
+* interleave :bagpie:
+to arrange in or as if in alternate layers

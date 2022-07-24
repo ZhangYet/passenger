@@ -1,0 +1,8 @@
+* sieve :bagpie:
+a device with meshes or perforations through which finer particles of a mixture (as of ashes, flour, or sand) of various sizes may be passed to separate them from coarser ones, through which the liquid may be drained from liquid-containing material, or through which soft materials may be forced for reduction to fine particles
+sift
+a crystalline substance (such as a zeolite) characterized by uniformly sized pores of molecular dimension that can adsorb small molecules and is used especially in separations
+a procedure for finding prime numbers that involves writing down the odd numbers from 2 up in succession and crossing out every third number after 3, every fifth after 5 including those already crossed out, every seventh after 7, and so on with the numbers that are never crossed out being prime
+a perforated wall or part of a wall at the end of one of the individual cells making up a sieve tube
+a tube consisting of an end-to-end series of thin-walled living plant cells characteristic of the phloem and held to function chiefly in translocation of organic solutes
+to have a very bad memory : to be unable to remember things

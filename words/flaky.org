@@ -1,0 +1,5 @@
+* flaky :bagpie:
+consisting of flakes
+tending to flake
+markedly odd or unconventional : offbeat, wacky
+not reliable in performance or behavior : undependable
