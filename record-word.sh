@@ -19,6 +19,16 @@ function found_word() {
     return 0
 }
 
+function record_word() {
+    word=$1
+    echo "* $word :bagpie:" > $word.org
+    echo $2 | jq 'map(.shortdef)' | jq 'flatten' | jq '.[]?' | sed 's/\"//g'  >>  $word.org
+}
+
+function echo_word() {
+    cat $1.org
+}
+
 found=`found_word "$data"`
 
 if [[ $found -eq 1 ]]; then
@@ -26,6 +36,6 @@ if [[ $found -eq 1 ]]; then
     exit 1
 fi
 
-echo "* $word :bagpie:" > $word.org
-echo $data | jq 'map(.shortdef)' | jq 'flatten' | jq '.[]?' | sed 's/\"//g'  >>  $word.org
+record_word "$word" "$data"
 
+echo_word "$word"
