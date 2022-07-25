@@ -8,7 +8,7 @@ fi
 
 word=$1
 
-data=`curl "${API}/${word}?key=${DICT_TOKEN}" | jq`
+data=`curl -s "${API}/${word}?key=${DICT_TOKEN}" | jq`
 
 function found_word() {
     string_type='"string"'
