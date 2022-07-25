@@ -29,9 +29,9 @@ function echo_word() {
     cat $1.org
 }
 
-found=`found_word "$data"`
+found_word "$data"
 
-if [[ $found -eq 1 ]]; then
+if [[ $? -eq 1 ]]; then
     echo "$word not found"
     exit 1
 fi
