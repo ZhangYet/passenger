@@ -1,0 +1,7 @@
+* magnitude :bagpie:
+great size or extent
+spatial quality : size
+quantity, number
+a measure of the intrinsic luminosity of a celestial body (such as a star) expressed as the apparent magnitude the body would have if viewed from a distance of 10 parsecs
+the luminosity of a celestial body (such as a star) as observed from the earth
+a range of magnitude extending from some value to ten times that value

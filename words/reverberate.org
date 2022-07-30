@@ -1,0 +1,5 @@
+* reverberate :bagpie:
+reflect
+repel
+echo
+reverberant

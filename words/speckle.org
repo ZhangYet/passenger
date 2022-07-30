@@ -1,0 +1,5 @@
+* speckle :bagpie:
+a little speck (as of color)
+to mark with speckles
+to be distributed in or on like speckles
+a technique for generating a clear composite image of a celestial object blurred by atmospheric turbulence in which a large number of short-exposure photographs are mathematically correlated by a computer
