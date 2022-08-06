@@ -1,0 +1,42 @@
+* FLEETING Docker and the OCI container ecosystem
+** FLEETING The kernel features
+1. Bind mounts and overlayfs;
+2. Control groups;
+3. Namespaces;
+** FLEETING the OCI ecosystem                                       :OCI:k8s:
+1. OCI image specification;
+2. A distrubtion specification: http apis for pushing and pulling container images.
+3. OCI runtime specification.
+
+Some OCI runtimes:
+
+1. [[https://github.com/containers/crun/blob/main/crun.1.md][crun]];
+2. gVisor: provides gerater isolation;
+3. firecracker: use KVM to give each container its own VM;
+4. kata(intel);
+
+A container engine ties the image, the distrubtion and the runtime specifications together.
+
+k8s is a container orcherstrator, capable of scheduling and runingg containers across different servers.
+k8s use CRI(Container Runtime Interface) to communicate with container engines.
+** FLEETING Docker                                                   :docker:
+Docker is a container engine providing two components: the CLI tool ~docker~ and the server ~dockerd~.
+~dockerd~ is contained in moby. It provides an HTTP api, usually listens to a Unix socket. It also starts
+container processes.
+
+The design does not play well with ~systemd~. [TODO]
+
+Docker doesn't support the CRI specification. k8s uses ~dockershim~ to provide a bridge between the CRI and
+the Docker API. But this was deprecated in 2020. The code is now maintained as ~cri-dockerd~.
+** containerd & nerdctl
+~containerd~ is a subset of Docker without any addition plugins.
+
+~containerd~ doesn't communicate with container registers. But similar to Docker, container processes are forked
+from the containerd process. ~containerd~ don't have a client like docker until ~nerdctl~.
+** Podman
+1. Podman appears nearly identical to Docker. It's client is a clone of docker.
+2. Podman supports rootless mode early. And its server is invoked by a non-root user. The rootless mode is default.
+3. Podman supports running systemd in the container.
+4. But Podman doesn't support CRI.
+** CRI-O
+CRI-O implements the k8s CRI. CRI-O is designed for k8s while Podman is for a general-purpose container engine.
