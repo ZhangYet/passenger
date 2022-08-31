@@ -2,8 +2,6 @@
 #+OPTIONS: ^:nil
 #+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
 * 成语
-** 急中生智
-https://youtu.be/ILgoMPTQzSI?t=61
 ** 九牛一毛
 https://www.youtube.com/watch?v=S-VQ8lMMFxc
 ** 开卷有益
@@ -12,6 +10,8 @@ https://www.youtube.com/watch?v=E8fOsCjDv3I
 https://www.youtube.com/watch?v=o8H_5aTfUnc
 ** 出人头地
 https://www.youtube.com/watch?v=1Uy4nixgNrM
+** 急中生智
+https://youtu.be/ILgoMPTQzSI?t=61
 * 阅读材料
 ** 《论语》
 ** 《三国演义》
