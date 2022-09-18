@@ -2,4 +2,14 @@
 #+AUTHOR: Dantezy <zhangyet@gmail.com>
 #+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
 #+OPTIONS: ^:nil
-* 
+* The Big "if" Idiom
+
+主要介绍了使用 bash && 和 || 表达 if 逻辑的方式。
+
+#+BEGIN_SRC bash
+  [ -n "$DIR"] && cd "$DIR"
+#+END_SRC
+
+~[~ 是 bash buildin 其实就是 ~test~ 。如果不清楚各种判断表达式， ~help test~ 可以查看。
+
+至于 ~[[~ 与 ~[~ 的区别，可以看[[http://mywiki.wooledge.org/BashFAQ/031][这篇文档]]。
