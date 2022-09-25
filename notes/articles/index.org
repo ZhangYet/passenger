@@ -22,6 +22,16 @@
 5. 用 crash 调试运行时系统，找 netfilter hook 找 ~NF_INET_LOCAL_IN~ 链，在 crash 里面输入 ~p &nf_hooks[2][1]~ 找到链表位置 addr，
    然后 ~list nf_hook_ops.list addr~ 找到注册了这个 hook 的函数列表。找到一个非标准模块引入的 ~net_hook_in_v4~.
 6. 再通过 perf 抓 ~net_hook_in_v4~ 和 ~nf_iterate~ 的返回值证明是这个函数导致报文被丢。
+* PERMANENT eBPF and XDP(Linux 内核之旅)                      :eBPF:XDP:DPDK:
+DPDK 让用户态程序直接处理网络流，使用独立 CPU 专门干这件事。
 
-   
+XDP 让网卡的 eBPF 处理网络流，使用网卡 NPU 专门干这件事。
+
+XDP 是 Linux 内核中提供高性能\可变成的网络数据包处理框架。它可以：
+
+1. 直接接管网卡的 RX 数据包处理；
+2. 运行 BPF 指令快速处理报文；
+3. 和 Linux 协议栈无缝对接；
+
+这篇文章介绍了 XDP 技术的基本情况（挺粗略的）。
    
