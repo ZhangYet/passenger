@@ -5,4 +5,23 @@
   The article tells the history of the memory management of *nix system, and because of its adventages, the ~mmap()~  became
   the mainstream of ~*alloc()~ implementation instead of ~brk()~.
 * [[https://aosabook.org/en/nginx.html][Nginx]]                                                               :nginx:
-  
+* FLEETING 一个奇葩的网络问题（Linux 内核之旅） :iptables:network:netfilter:systemmap:
+问题描述： 同网段两台 client 访问同一台 server，其中一台（简称 client1）可以正常访问，一台不可以（client2）。
+
+排查思路：
+1. 因为 client1 可以正常访问，所以 server 的路由没有问题。可以先看 iptables 用 ~iptables-save | grep {ip}~ 查看。
+2. 在 server 上按 client ip 抓包。 ~tcpdump -i eth0 tcp and host client_ip -n~
+   发现有 syn 没有 ack，查看 tcp 统计（netstat 看连接数，tcp 丢包）。再通过 ping 确认跟 TCP 协议无关。
+3. 报文如果被内核丢弃，正常情况会调用 ~kfree_skb~ （Q: Tracepoint for free an sk_buff 是在内核源码里面吗？）
+   写一个 systemmap 脚本追踪这个 tracepoint 查看丢包时候的调用栈。定位到调用 ~ip_local_deliver~ 时，因为
+   iptables 规则丢包。
+4. 但没有发现 DROP 的规则，所以确认是否匹配上 iptables 规则：
+   ~iptables -I IN_public_allow 12 -p all -s client_ip -j LOG --log-prefix "Alex"~ 和
+   ~iptables -I IN_public_allow 14 -p all -s client_ip -j LOG --log-prefix "Alex-after"~
+   发现第一条规则被通过，第二条没有（Q: IN_public_allow 12 & 14有什么区别？），清空 iptables 规则甚至重启都无法解决问题。
+5. 用 crash 调试运行时系统，找 netfilter hook 找 ~NF_INET_LOCAL_IN~ 链，在 crash 里面输入 ~p &nf_hooks[2][1]~ 找到链表位置 addr，
+   然后 ~list nf_hook_ops.list addr~ 找到注册了这个 hook 的函数列表。找到一个非标准模块引入的 ~net_hook_in_v4~.
+6. 再通过 perf 抓 ~net_hook_in_v4~ 和 ~nf_iterate~ 的返回值证明是这个函数导致报文被丢。
+
+   
+   
