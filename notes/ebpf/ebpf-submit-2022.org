@@ -102,6 +102,13 @@ Send traffic to the ip:
 Add more probe to check where the QM changed. Found that it change in the ~veth_xmit~.
 
 A patch has raised to the kernel. And they use a eBPF to change the QM.
+* eBPF for IO latency monitoring
+They use raw_tracepoint.
+#+BEGIN_SRC c
+  SEC("raw_tracepoint/block_bio_queue") 
+  SEC("raw_tracepoint/block_bio_complete")
+#+END_SRC
+They monitors every qemu's bio data(read_nr/write_nr/read_bytes/write_bytes etc)
 * Footnotes
 [fn:2] What's this mean? 
 
