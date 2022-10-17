@@ -1,0 +1,108 @@
+#TITLE: ebpf 2022 summit
+#AUTHOR: dantezh<zhangyet@gmail.com>
+* All your queues are belong to us
+Issues:
+1. Packet drops and retransmits
+2. Lower throughput
+3. Increased latency
+
+Check it:
+#+BEGIN_SRC bash
+  ethtools -S ens6 | grep tx_bytes
+  queue_0_tx_bytes: 22194553533203
+  queue_1_tx_bytes: 0
+  ...
+  queue_8_tx_bytes: 0
+#+END_SRC
+
+8 tx queues on the Network interface, only the first one was used.[fn:1]
+
+Then:
+#+BEGIN_SRC bash
+  tc -s qdisc show dev ens6
+
+  qdisc mq 0: root
+  Send 21809447867 byets 15853650 pkt...
+
+  qdisc fq_codel 0: parent :1 limit 10240p flows 1024 [...]
+   Sent 21809447867 bytes 15853650 pkt...
+
+  qdisc fq_codel 0: parent :2 limit 10240p flows 1024 [...]
+   Sent 0 bytes 0 pkt
+#+END_SRC
+Only the first qdisc is used[fn:2].
+
+Check the recieve side:
+#+BEGIN_SRC bash
+  ethtools -S ens6 | grep rx_bytes
+#+END_SRC
+
+The result showed rx is ok. (Only the transmit side had a problem.)
+
+ens6 is for veth(the containers). The host traffic is throught ens5. And ens5 is ok.
+
+Even when the host traffic went throught the ens6, it's ok. If manually setting the pod's
+traffic with N tx queues, it's ok, too.
+
+*Only impacts traffic sent through a veth with a txqueue and routed.*
+
+Queue selection happens in net device sub system:
+
+#+BEGIN_SRC
+  dev_queue_xmit
+    __dev_queue_xmit
+      netdev_core_pick_tx  // queue selection
+        if ndo_select_queue
+          ena_select_queue
+      __dev_xmit_skb       // transmission
+        ...
+#+END_SRC
+
+Focus on ~ena_select_queue~:
+#+BEGIN_SRC c
+  if (skb_rx_queue_recorded(skb))
+    qid = skb_get_rx_queue(skb);
+  else
+    qid = netdev_pick_tx(dev, skb, NULL);
+#+END_SRC
+This fucntion should compute a flow hash with ~skb_tx_hash~ and pick a queue. But
+It looked like this was not happened.
+
+#+BEGIN_SRC c
+  static inline u16 skb_get_rx_queu(const struck sk_buff *skb)
+    {
+      return skb->queue_mapping - 1;
+    }
+#+END_SRC
+It seemed that queue mapping is not 0.
+
+Using bpftrace to look at the content of queue_mapping:
+#+BEGIN_SRC c
+    kprobe:dev_queue_xmit
+    {
+      $skb = (struct sk_buff *)arg0;
+      $skbqm = $skb->queue_mapping;
+      $dev = (struct net_device *)$skb->dev;
+
+      $iph = ((struct iphdr *) ($skb->head + $skb->network_header));
+
+      if ($iph->daddr == 168430090) { // filter skb to IP 10.10.10.10
+	printf("%30s: skb:%20p dev:%3d %20s SKBQM:%7d\n",
+	       probe, $skb, $dev->ifindex, $dev->name, $skbqm);
+      } 
+    }
+#+END_SRC
+Send traffic to the ip:
+#+BEGIN_SRC bash
+  ip netns exec cni-xxx ping -c 1 10.10.10.10
+
+  kprobe:dev_queue_xmit: dev: 27 eth0 SKBQM: 0 # pod interface
+  kprobe:dev_queue_xmit: dev: 3  ens6 SKBQM: 1 # instance interface
+#+END_SRC
+Add more probe to check where the QM changed. Found that it change in the ~veth_xmit~.
+
+A patch has raised to the kernel. And they use a eBPF to change the QM.
+* Footnotes
+[fn:2] What's this mean? 
+
+[fn:1] What's a tx queue? What's ~-S~ of ethtools? 
