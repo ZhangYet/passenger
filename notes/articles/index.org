@@ -5,7 +5,7 @@
   The article tells the history of the memory management of *nix system, and because of its adventages, the ~mmap()~  became
   the mainstream of ~*alloc()~ implementation instead of ~brk()~.
 * [[https://aosabook.org/en/nginx.html][Nginx]]                                                               :nginx:
-* FLEETING 一个奇葩的网络问题（Linux 内核之旅） :iptables:network:netfilter:systemmap:
+* PERMANENT 一个奇葩的网络问题（Linux 内核之旅） :iptables:network:netfilter:systemmap:
 问题描述： 同网段两台 client 访问同一台 server，其中一台（简称 client1）可以正常访问，一台不可以（client2）。
 
 排查思路：
@@ -42,6 +42,9 @@ XDP 是 Linux 内核中提供高性能\可变成的网络数据包处理框架�
 2. 使用不同寄存器：这种错误会很奇怪，文中的例子是删去一行打印语句就会出现，原因是编译器优化之后，边界检验和实际访问数组时用了不同寄存器。
 3. 寄存器溢出；情况2和情况3都可以通过使用 ~array[pos &= MAX_SIZE -1] = 1~ 来规避。
 * FLEETING CPU 性能指标提取及源码分析（Linux 内核之旅） 
+* [[https://lwn.net/Articles/909980/][A discussion on printk()]]                                    :kernel:printk:
+Problem: its latency is too high. But the PR was rejected.
+* [[https://lwn.net/Articles/908268/][Introducing io_uring_spawn]]                                  :io_uring:fork:
 
-   
-
+  
+>>>>>>> 1728a96 (Add some notes)
