@@ -46,5 +46,3 @@ XDP 是 Linux 内核中提供高性能\可变成的网络数据包处理框架�
 Problem: its latency is too high. But the PR was rejected.
 * [[https://lwn.net/Articles/908268/][Introducing io_uring_spawn]]                                  :io_uring:fork:
 
-  
->>>>>>> 1728a96 (Add some notes)
