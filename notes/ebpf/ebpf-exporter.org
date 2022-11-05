@@ -1,0 +1,25 @@
+* ebpf exporter                                                    :k8s:ebpf:
+** [Exporter.New] What is a desc in prometheus?
+** [Exporter.code] What is ~/proc/kallsyms~? 
+preamble 应该是 ebpf 代码中的内容，这个 code 函数就是为 Code 加上一段与 preamble 相关的宏。
+** [attach] What is tags returnedd by ~attach()~?
+这函数封装得太多了。首先这个函数接受所有的 module 跟 kprobes 等作为入参。
+
+~mergeTags()~ 会把 module attach 到 kprobes/kretprobe/tracepoint/rawTracepoint （以下简称 trace 对象，回去查查这些真正的名称是啥）然后更新 tags.
+
+~mergeTags()~ 的参数：
+1. tags;
+2. attacher: 一个函数，接受 module 和要绑定的 trace 对象；我们后面只需要讨论 ~attachKprobes~
+3. module: bcc module;
+4. trace 对象，这里要搞清楚 probe 和 targetName 的区别。
+
+重点说说 ~attachKprobes~  这个函数，其余函数的区别只在于传入的 probeLoader 。其实都是调用 ~attachSomething~ 它有四个入参：
+1. module: 无需多言；
+2. loader: 这里就是 ~module.LoadKprobe~ 这个函数会返回 ~BPF_PROG_TYPE_KPROBE~ 对应程序的 fd(即 target);
+3. attacher: 一个闭包，这个闭包返回一个函数，这个函数接受 probe 和 target 作为入参，去调用 ~attacherWithMaxActive~ 函数（这里是 ~module.AttachKprobe~ ），之所以需要这个闭包，是因为 ~loaer~ 运行之后才有 target;
+4. probes: 无需多言；
+
+~attachSomething~ 遍历所有 probes, 载入对应 probe 的 target，然后取得 target 对应的 tag, 再将 target 和 probe attach 在一起。tag 会记录在 tags 里面，以 targetName 为 key。
+
+PerfEvents 部分我们先跳过。
+
