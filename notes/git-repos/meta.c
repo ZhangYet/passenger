@@ -45,7 +45,7 @@ static netdev_tx_t meta_xmit(struct sk_buff *skb, struct net_device *dev)
 	struct bpf_prog *prog;
 
 	rcu_read_lock();
-	peer = rcu_dereference(meta->peer);
+	peer = rcu_dereference(meta->peer); // 返回一个受 RCU(Read-Copy Update) 保护的指针
 	if (unlikely(!peer || skb_orphan_frags(skb, GFP_ATOMIC)))
 		goto drop;
 
@@ -57,9 +57,9 @@ static netdev_tx_t meta_xmit(struct sk_buff *skb, struct net_device *dev)
 		goto drop;
 	switch (bpf_prog_run(prog, skb)) {
 	case META_OKAY:
-		skb->protocol = eth_type_trans(skb, skb->dev);
-		skb_postpull_rcsum(skb, eth_hdr(skb), ETH_HLEN);
-		__netif_rx(skb);
+		skb->protocol = eth_type_trans(skb, skb->dev); // determine the packet's protocol ID.
+		skb_postpull_rcsum(skb, eth_hdr(skb), ETH_HLEN); // 重新计算校验值
+		__netif_rx(skb); //
 		break;
 	case META_REDIRECT:
 		skb_do_redirect(skb);
@@ -188,7 +188,7 @@ static void meta_setup(struct net_device *dev)
 		NETIF_F_GSO_SOFTWARE |
 		NETIF_F_GSO_ENCAP_ALL;
 
-	ether_setup(dev);
+	ether_setup(dev); // setup Ethernet network device
 	dev->min_mtu = ETH_MIN_MTU;
 	dev->max_mtu = ETH_MAX_MTU;
 
@@ -209,7 +209,14 @@ static void meta_setup(struct net_device *dev)
 
 	dev->needs_free_netdev = true;
 
-	netif_set_tso_max_size(dev, GSO_MAX_SIZE);
+	/*
+	  TSO: TCP Segmentation Offload 是一种利用网卡对大数据包进行分片，从而减小 CPU 负荷的一种技术。其作用通过两个图来对比：
+	  GSO: Generic Segmentation Offload 是延缓分片技术。它比 TSO 更通用，原因在于它不需要硬件的支持就可以进行分片。
+               其过程是：首先查询网卡是否支持TSO 功能，如果硬件支持TSO则使用网卡的硬件分片能力执行分片；如果网卡不支持 TSO 功能，则将分片的执行，延缓到了将数据推送到网卡的前一刻执行。
+
+	  https://cloud.tencent.com/developer/article/1806504 图挺漂亮的
+	  */
+	netif_set_tso_max_size(dev, GSO_MAX_SIZE); // set the max size of TSO frames supported
 }
 
 static struct net *meta_get_link_net(const struct net_device *dev)
@@ -276,7 +283,10 @@ static int meta_new_link(struct net *src_net, struct net_device *dev,
 	net = rtnl_link_get_net(src_net, tbp);
 	if (IS_ERR(net))
 		return PTR_ERR(net);
-
+	/*
+	  由于虚拟网络设备对是由两个网络设备组成, dev 是虚拟网络设备对的其中一个网络设备,
+          所以需要调用 rtnl_create_link() 函数创建的另外一个网络设备并保存到 peer 变量中.
+	  */
 	peer = rtnl_create_link(net, ifname, name_assign_type,
 				&meta_link_ops, tbp, extack);
 	if (IS_ERR(peer)) {
@@ -317,7 +327,8 @@ static int meta_new_link(struct net *src_net, struct net_device *dev,
 		goto err_register_dev;
 
 	netif_carrier_off(dev);
-
+	
+	// 以下两段代码就是要双向链接 dev 和 peer, dev <-> peer
 	priv = netdev_priv(dev);
 	rcu_assign_pointer(priv->peer, peer);
 
