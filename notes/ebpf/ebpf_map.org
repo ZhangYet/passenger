@@ -1,0 +1,63 @@
+#+TITLE: bpf map 相关源代码笔记
+基于 5.15 代码。
+* 创建 ebpf map
+入口[fn:1]: ~kernel/bpf/syscall.c~ .
+
+#+BEGIN_SRC c
+SYSCALL_DEFINE3(bpf, int, cmd, union bpf_attr __user *, uattr, unsigned int, size)
+{
+	return __sys_bpf(cmd, USER_BPFPTR(uattr), size);
+}
+#+END_SRC
+
+~__sys_bpf~ 根据 ~cmd~ 调用不同的函数，创建 ebpf map 对应 ~BPF_MAP_CREATE~.
+
+最终调用的是
+#+BEGIN_SRC c
+static int map_create(union bpf_attr *attr)
+#+END_SRC
+
+~bpf_attr~ 定义在 ~include/uapi/linux/bpf.h~.
+
+~map_create~ 主要流程，去除枝节之后，主要是：
+#+BEGIN_SRC 
+定义 bpf_map *map
+
+map = find_and_alloc_map(attr);
+        |
+        |------ ops = bpf_map_types[type]  // const struct bpf_map_ops htab_lru_map_ops 在这里用上
+        |
+        |------ ops->map_alloc // 对应 lru, 就是 htab_map_alloc
+
+security_bpf_map_alloc(map) // 不清楚有什么用
+
+bpf_map_alloc_id(map) // 给 map 分配一个 id
+
+bpf_map_save_memcg(map) // map->memcg = get_mem_cgroup_from_mm(current->mm)
+
+bpf_map_new_fd(map, f_flags) // 除了检查之外，就是 anon_inode_getfd: Creates a new file by hooking it on a single inode.
+
+成功返回指向 map fd, 失败返回错误码
+#+END_SRC
+
+所以如果要探究 lru 的问题，主要还是要看 htab_map_alloc.
+#+BEGIN_SRC
+htab = kzalloc(sizeof(*htab), GFP_USER | __GFP_ACCOUNT); // 分配空间
+
+bpf_map_init_from_attr(&htab->map, attr); // 简单的赋值
+
+htab->n_buckets = roundup_pow_of_two(htab->map.max_entries); // 跟 max_entries 相关的点
+
+htab->buckets = bpf_map_area_alloc(htab->n_buckets *  // 复杂的内存分配
+					   sizeof(struct bucket),
+					   htab->map.numa_node);  
+
+lru 只会想到到 prealloc_init 之后是否 alloc_extra_elems(lru 不会执行这一步)
+#+END_SRC
+
+对 lru 类型的 htab ~prealloc~ 会调用 ~bpf_lru_init~ 和 ~bpf_lru_populate~. 后者会初始化 free 的 lru list.
+
+* Footnotes
+
+[fn:1] 找 syscall 源码的方法：假如 syscall 入参数量为 x，名为A， 在代码中搜索 ~SYSCALL_DEFINEx(A~.
+
