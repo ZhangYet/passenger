@@ -1,0 +1,36 @@
+* FLEETING Linux 内存管理——文件系统缓存和匿名页的交换
+
+** swap
+匿名页不时以文件形式存在，无法和磁盘文件交换，只能跟 swap 交换分区或者交换文件。file-backed page 其实也会有 swap 行为。
+
+对 file-backed page 内核会申请一个 page cache, 用户的读写其实就是跟 page cache 互相拷贝。
+
+可以使用 ~echo 3 > /proc/sys/vm/drop_cache~ 来清除缓存。
+
+~free~ 中 访问文件产生的缓存由 cached 记录，直接操作裸盘（打开 ~/dev/sda~ 读写）产生的缓存由 buffers 记录。
+通过文件系统读写的时候，既会由 cached 也会由 buffers。
+
+** reclaim
+对 file-backed page, 其实就是 page cache。
+
+对 non-file-backed page 只能在 swap 分区或者在硬盘创建 swapfile 交换到磁盘上。
+
+对这两类情况，交换的时机由两个：
+
+1. 由内存水位控制回收实就，通过 kswapd 内核线程回收；
+2. 人为 drop_cache
+
+swapoff 和 CONFIG_SWAP 可以控制匿名页的交换。关了就不能使用 swap 分区和 swapfile.
+
+内存水位(watermark) high > low > min:
+
+1. low: 触发 kswapd;
+2. min: kernel 会直接在进程的上下文里面做内存回收；
+3. high: 停止回收；
+
+~/proc/sys/vm/swapness~ 控制回收行为， ~swapness＝0~ 意味着不在交换匿名页。
+
+~cat /proc/meminfo~ 查看内存情况。
+
+** 脏页回写
+脏页回写时机由事件和空间共同控制。
