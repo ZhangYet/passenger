@@ -34,3 +34,7 @@ swapoff 和 CONFIG_SWAP 可以控制匿名页的交换。关了就不能使用 s
 
 ** 脏页回写
 脏页回写时机由事件和空间共同控制。
+
+* FLEETING 腾讯一面：内存满了，会发生什么
+
+* FLEETING 内存管理之内存映射(linux_kernel_wiki)
