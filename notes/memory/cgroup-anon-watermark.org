@@ -12,3 +12,166 @@ css: cgroup_subsys_state
 ~node_stat_item~ 这玩意可能得留意一下。
 
 ~memcg_memory_event~ 可能就是要在这里增加一个事件。看看其他事件的实现。
+** FLEETING cgroup.event_control
+#+BEGIN_SRC c
+  static ssize_t memcg_write_event_control(struct kernfs_open_file *of,
+					   char *buf, size_t nbytes, loff_t off)
+  {
+	  struct cgroup_subsys_state *css = of_css(of);
+	  struct mem_cgroup *memcg = mem_cgroup_from_css(css);
+	  struct mem_cgroup_event *event;
+	  struct cgroup_subsys_state *cfile_css;
+	  unsigned int efd, cfd;
+	  struct fd efile;
+	  struct fd cfile;
+	  const char *name;
+	  char *endp;
+	  int ret;
+
+	  buf = strstrip(buf);
+
+	  /*
+	    见 https://blog.csdn.net/Tommy_wxie/article/details/7480087
+	    将 buf 转成一个10进制 unsigned int, 另外 endp 指向成功转换的字符串的结尾，
+	    如果这个结尾不是 ‘ ’，那说明输入的字符串里面有非数字字符
+	    <event_fd> <control_fd> <args> 此时 endp 应该指向 <event_id> 后面的空格
+	    ,*/
+	  efd = simple_strtoul(buf, &endp, 10); 
+	  if (*endp != ' ')
+		  return -EINVAL;
+	  buf = endp + 1;
+
+	  cfd = simple_strtoul(buf, &endp, 10);
+	  if ((*endp != ' ') && (*endp != '\0')) // 这个 && 我就看不懂了
+		  return -EINVAL;
+	  buf = endp + 1;
+
+	  event = kzalloc(sizeof(*event), GFP_KERNEL);
+	  if (!event)
+		  return -ENOMEM;
+
+	  event->memcg = memcg;
+	  INIT_LIST_HEAD(&event->list);
+	  // 见 http://www.embeddedlinux.org.cn/ldd3note/_51.htm 这里是初始化 poll_table
+	  init_poll_funcptr(&event->pt, memcg_event_ptable_queue_proc);
+	  // init wait_queue 这些都是内核的数据结构。
+	  init_waitqueue_func_entry(&event->wait, memcg_event_wake);
+	  INIT_WORK(&event->remove, memcg_event_remove);
+
+	  efile = fdget(efd);
+	  if (!efile.file) {
+		  ret = -EBADF;
+		  goto out_kfree;
+	  }
+
+	  
+	  event->eventfd = eventfd_ctx_fileget(efile.file);
+	  if (IS_ERR(event->eventfd)) {
+		  ret = PTR_ERR(event->eventfd);
+		  goto out_put_efile;
+	  }
+
+	  cfile = fdget(cfd);
+	  if (!cfile.file) {
+		  ret = -EBADF;
+		  goto out_put_eventfd;
+	  }
+
+	  /* the process need read permission on control file */
+	  /* AV: shouldn't we check that it's been opened for read instead? */
+	  ret = file_permission(cfile.file, MAY_READ);
+	  if (ret < 0)
+		  goto out_put_cfile;
+
+	  /*
+	   ,* Determine the event callbacks and set them in @event.  This used
+	   ,* to be done via struct cftype but cgroup core no longer knows
+	   ,* about these events.  The following is crude but the whole thing
+	   ,* is for compatibility anyway.
+	   ,*
+	   ,* DO NOT ADD NEW FILES.
+	   ,*/
+	  name = cfile.file->f_path.dentry->d_name.name;
+
+	  if (!strcmp(name, "memory.usage_in_bytes")) {
+		  event->register_event = mem_cgroup_usage_register_event;
+		  event->unregister_event = mem_cgroup_usage_unregister_event;
+	  } else if (!strcmp(name, "memory.oom_control")) {
+		  event->register_event = mem_cgroup_oom_register_event;
+		  event->unregister_event = mem_cgroup_oom_unregister_event;
+	  } else if (!strcmp(name, "memory.pressure_level")) {
+		  event->register_event = vmpressure_register_event;
+		  event->unregister_event = vmpressure_unregister_event;
+	  } else if (!strcmp(name, "memory.memsw.usage_in_bytes")) {
+		  event->register_event = memsw_cgroup_usage_register_event;
+		  event->unregister_event = memsw_cgroup_usage_unregister_event;
+	  } else {
+		  ret = -EINVAL;
+		  goto out_put_cfile;
+	  }
+
+	  /*
+	   ,* Verify @cfile should belong to @css.  Also, remaining events are
+	   ,* automatically removed on cgroup destruction but the removal is
+	   ,* asynchronous, so take an extra ref on @css.
+	   ,*/
+	  cfile_css = css_tryget_online_from_dir(cfile.file->f_path.dentry->d_parent,
+						 &memory_cgrp_subsys);
+	  ret = -EINVAL;
+	  if (IS_ERR(cfile_css))
+		  goto out_put_cfile;
+	  if (cfile_css != css) {
+		  css_put(cfile_css);
+		  goto out_put_cfile;
+	  }
+
+	  ret = event->register_event(memcg, event->eventfd, buf); // 里面会把 event 加到 event.list 中，并执行 eventfd_signal 
+	  if (ret)
+		  goto out_put_css;
+
+	  vfs_poll(efile.file, &event->pt); // 这里不太明白要干嘛
+
+	  spin_lock_irq(&memcg->event_list_lock);
+	  list_add(&event->list, &memcg->event_list);
+	  spin_unlock_irq(&memcg->event_list_lock);
+
+	  fdput(cfile);
+	  fdput(efile);
+
+	  return nbytes;
+
+  out_put_css:
+	  css_put(css);
+  out_put_cfile:
+	  fdput(cfile);
+  out_put_eventfd:
+	  eventfd_ctx_put(event->eventfd);
+  out_put_efile:
+	  fdput(efile);
+  out_kfree:
+	  kfree(event);
+
+	  return ret;
+  }
+#+END_SRC
+** FLEETING 开发 sysfs 相关接口
+首先会在 mm/memcontrol.c 里面的 memory_files 增加一个 ~struct cftype~[fn:1], 最重要的是需要定义 ~seq_show~ 和 ~write~ 函数。
+
+#+BEGIN_SRC c
+  int (*seq_show)(struct seq_file *sf, void *v);
+#+END_SRC
+
+在 mm 里面定义的 ~seq_show~ 一般会diaoyong ~mem_cgroup_from_seq~
+#+BEGIN_SRC c
+  static inline struct mem_cgroup *mem_cgroup_from_seq(struct seq_file *m)
+  {
+      return mem_cgroup_from_css(seq_css(m));
+  }
+	  
+#+END_SRC
+
+seq_css 会从 ~struct seq_file*~ 取到对应的 ~cgroup_subsys_state*~, 取到之后，用 ~container_of~ 宏取到对应的 ~struct mem_cgroup*~
+
+* Footnotes
+
+[fn:1] 这个结构体定义在 include/linux/cgroup-defs.h 里面。代码跳转跳不过去。 
