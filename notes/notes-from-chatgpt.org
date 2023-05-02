@@ -1,0 +1,95 @@
+#+TITLE: chatgpt 问答
+#+AUTHOR: Dantezy <zhangyet@gmail.com>
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+#+OPTIONS: ^:nil
+* PERMANENT sudo xxx 找不到 xxx 的路径                            :sudo:bash:
+因为 sudoer 里面有 secure_path 设置，所以需要 ~visudo~ 去修改里面的配置把对应的 path 加上。
+* PERMANENT 如何保存并退出 nano                                        :nano:
+~Ctrl+O~ 然后 ~Enter~ 这个鬼东西最大的问题是 ~Ctrl+O~ 之后会问要不要改文件名。
+* PERMANENT ~seq_operations~ 在哪里调用？                            :kernel:
+这个问题的背景如下：
+
+我想知道 kernel 如何调用 ~diskstats_show~ (主要是要确认传进去的 ~void *v~ 到底是什么鬼)。
+
+众所周知， ~diskstats_show~ 放在
+
+#+BEGIN_SRC c
+    static const struct seq_operations diskstats_op = {
+	  .start	= disk_seqf_start,
+	  .next	= disk_seqf_next,
+	  .stop	= disk_seqf_stop,
+	  .show	= diskstats_show
+    };
+#+END_SRC
+
+里面，所以我问了 chatgpt 三个问题：
+#+BEGIN_QUOTE
+
+
+Where does the kernel invoke seq_operations?
+
+Where does the kernel pass parameter to seq_operations' functions?
+
+In which source file the kernel invokes seq_operations(start/next/stop/show)?
+#+END_QUOTE
+
+第三个问题给出 seq_file.c 这个文件，有点用。
+* PERMANENT 找头文件以及生成对应的编译代码                       :kernel:irq:
+研究 [[https://github.com/bytedance/trace-irqoff][trace-irqoff]] 的时候，遇到他们给出的示例代码，不知道应该怎样编译：
+#+BEGIN_SRC c
+    static void disable_hardirq(unsigned long latency)
+    {
+      local_irq_disable();
+      mdelay(latency);
+      local_irq_enable();
+    }
+#+END_SRC
+
+直接把这个代码贴进去问对应的头文件是啥。然后直接让它生成一个 module 的源码和 Makefile。能用。
+* PERMANENT bash 变量默认值                                            :bash:
+#+BEGIN_SRC shell
+#!/bin/bash
+
+# Set the variable MYVAR to the default value "default" if it is unset or null
+echo ${MYVAR:-default}
+
+# Set the variable MYVAR to the value "hello" and then print it
+MYVAR=hello
+echo ${MYVAR:-default}
+
+#+END_SRC
+
+不得不说，这个写法我一直没记住。
+* PERMANENT bpftrace 模糊匹配某个 command                     :bpftrace:ebpf:
+其实这里 chatgpt 没有给我正确的答案。它给的答案是：
+
+#+BEGIN_SRC shell
+  $ sudo bpftrace -e 'tracepoint:raw_syscalls:sys_enter { if (comm ~ /bash/) { printf("%s called\n", comm); } }'
+#+END_SRC
+
+最后我实现的方法是：
+#+BEGIN_SRC bpftrace
+kprobe:ext4_file_read_iter
+{
+  if (strncmp(comm, "kworker", 7)) {
+    printf("current cgroupid: %ld\n", cgroup);
+  }
+}
+#+END_SRC
+
+以防我冤枉 chatgpt, 当时问的问题是：
+#+BEGIN_QUOTE
+bpftrace filtering wildcard command
+
+I mean filtering in /.../ using comm
+#+END_QUOTE
+* ORGANIZING git 相关用例                                               :git:
+** 找出某个文件2014年相关 commit
+#+BEGIN_SRC bash
+  git log --pretty=format:"%h %an %ad %s" --date=short --since="2014-01-01" --until="2014-12-31" --follow path/to/file
+#+END_SRC
+* PERMANENT 统计所有不同状态的 socket
+#+BEGIN_SRC shell
+  ss -ant | awk '{print $1}' | sort | uniq -c
+#+END_SRC
+
