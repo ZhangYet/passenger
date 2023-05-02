@@ -46,7 +46,8 @@ In which source file the kernel invokes seq_operations(start/next/stop/show)?
 #+END_SRC
 
 直接把这个代码贴进去问对应的头文件是啥。然后直接让它生成一个 module 的源码和 Makefile。能用。
-* PERMANENT bash 变量默认值                                            :bash:
+* ORGANIZING bash 相关                                                 :bash:
+** bash 变量默认值                                                     :bash:
 #+BEGIN_SRC shell
 #!/bin/bash
 
@@ -60,6 +61,14 @@ echo ${MYVAR:-default}
 #+END_SRC
 
 不得不说，这个写法我一直没记住。
+** bash 判断文件夹是否存在
+#+BEGIN_SRC shell
+  if [ -d "/path/to/directory" ]; then
+      echo "Directory exists"
+  else
+      echo "Directory does not exist"
+  fi
+#+END_SRC
 * PERMANENT bpftrace 模糊匹配某个 command                     :bpftrace:ebpf:
 其实这里 chatgpt 没有给我正确的答案。它给的答案是：
 
@@ -87,6 +96,10 @@ I mean filtering in /.../ using comm
 ** 找出某个文件2014年相关 commit
 #+BEGIN_SRC bash
   git log --pretty=format:"%h %an %ad %s" --date=short --since="2014-01-01" --until="2014-12-31" --follow path/to/file
+#+END_SRC
+** 列出所有未缓存的文件
+#+BEGIN_SRC bash
+  git ls-files --others --exclude-standard
 #+END_SRC
 * PERMANENT 统计所有不同状态的 socket
 #+BEGIN_SRC shell
