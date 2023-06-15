@@ -1,0 +1,76 @@
+#+TITLE: An Introdunction to Tracepoint
+#+OPTIONS: ^:nil
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+* An Example: trace_softirq_entry
+Here we can see an example in ~__do_softirq()~ from kernel/softirq.c.
+#+BEGIN_SRC c
+  trace_softirq_entry(vec_nr);
+#+END_SRC
+
+But we can't find the definition of ~trace_softirq_entry~ function.
+
+That's because ~trace_softirq_entry~ is defined in include/trace/events/irq.h.
+
+#+BEGIN_SRC c
+DEFINE_EVENT(softirq, softirq_entry,
+
+	TP_PROTO(unsigned int vec_nr),
+
+	TP_ARGS(vec_nr)
+);
+#+END_SRC
+
+This macro will expand and generate the definition of ~trace_softirq_entry~.
+* Expand the ~DEFINE_EVENT~ macro
+Searching the source code, we can see that:
+
+#+BEGIN_SRC c
+   /* include/linux/tracepoint.h */
+  #define DEFINE_EVENT(template, name, proto, args)		\
+	  DECLARE_TRACE(name, PARAMS(proto), PARAMS(args))
+#+END_SRC
+
+#+BEGIN_SRC c
+  /* include/trace/define_trace.h */
+  #undef DEFINE_EVENT
+  #define DEFINE_EVENT(template, name, proto, args)	\
+	  DEFINE_TRACE(name, PARAMS(proto), PARAMS(args))
+
+#+END_SRC
+
+
+* A macro trick
+This macro trick is from [[https://lwn.net/Articles/383362/][Using the TRACE_EVENT() macro (Part 3)]].
+
+#+BEGIN_SRC c
+   #define DOGS { C(JACK_RUSSELL), C(BULL_TERRIER), C(ITALIAN_GREYHOUND) }
+   #undef C
+   #define C(a) ENUM_##a
+   enum dog_enums DOGS;
+   #undef C
+   #define C(a) #a
+   char *dog_strings[] = DOGS;
+   char *dog_to_string(enum dog_enums dog)
+   {
+           return dog_strings[dog];
+   }
+#+END_SRC
+
+In ~enum dog_enums DOGS;~, the sub-macro ~C~ is ~ENUM_##a~, so this line will be expanded as:
+
+#+BEGIN_SRC c
+  enum dog_enums { ENUM_JACK_RUSSEL, ENUM_BULL_TERRIER, ENUM_ITALIAN_GRAYHOUND };
+#+END_SRC
+
+When we go to ~char *dog_strings[] = DOGS;~, the sub-macro ~C~ is redifined as ~#a~.
+So this line will be expanded as:
+
+#+BEGIN_SRC c
+  char *dog_strings[] = { "JACK_RUSSEL", "BULL_TERRIER", "ITALIAN_GREYHOUND" };
+#+END_SRC
+* Expand the TRACE_EVENT macro
+This marco will expand many times to generate the final codes[fn:1].
+
+* Footnotes
+
+[fn:1] https://richardweiyang-2.gitbook.io/kernel-exploring/00-index-3/02-trace_event 
