@@ -1,0 +1,64 @@
+#+TITLE: Anon page watermark: design and problems
+#+AUTHOR: Dantezy <zhangyet@gmail.com>
+#+OPTIONS: ^:nil
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+* How the kernel account anon page usage
+我们从 ~memory_stat_format~ 函数开始，因为我们读 ~memory.stat~ 时候，就是调用这个函数。
+
+里面每一行对应的 idx，见
+#+BEGIN_SRC c
+  static const struct memory_stat memory_stats[] = {
+    { "anon",			NR_ANON_MAPPED			},
+    { "inactive_anon",		NR_INACTIVE_ANON		},
+    { "active_anon",		NR_ACTIVE_ANON			},
+  }
+#+END_SRC
+
+~NR_ANON_MAPPED~, ~NR_INACTIVE_ANON~ 和 ~NR_ACTIVE_ANON~ 的定义见 ~enum node_stat_item~.
+
+直接搜索代码的话，可以很快找到 ~NR_ANON_MAPPED~ 会在 ~__mod_lruvec_state~ 里面更新。
+但是直接搜 ~NR_INACTIVE_ANON~ 和 ~NR_ACTIVE_ANON~ 是搜不到的。主要是因为定义时，
+
+#+BEGIN_SRC c
+  enum node_stat_item {
+    NR_LRU_BASE,
+    NR_INACTIVE_ANON = NR_LRU_BASE,
+    NR_ACTIVE_ANON,
+    ...
+  }
+#+END_SRC
+
+所以要搜 ~NR_LRU_BASE~, 这样可以搜到这两个计数在 ~update_lru_size~ 里面更新。
+
+#+BEGIN_SRC c
+  /* update NR_ANON_MAPPED */
+  page_add_new_anon_rmap(new_page, dst_vma, addr, false);
+  /* update NR_INACTIVE_ANON or NR_ACTIVE_ANON */
+  lru_cache_add_inactive_or_unevictable(new_page, dst_vma);
+#+END_SRC
+
+目前我看的代码里面， ~NR_ANON_MAPPED~ 跟 ~NR_(IN)ACTIVE_ANON~ 都是同时更新的。所以我到现在还不知道文档里面描述不相等的情况什么时候会出现。
+#+BEGIN_QUOTE
+As these represent internal list state (eg. shmem pages are on anon
+		memory management lists), inactive_foo + active_foo may not be equal to
+		the value for the foo counter, since the foo counter is type-based, not
+		list-based.
+#+END_QUOTE
+* The design of anon page watermark
+其实这个 patch 是三个 version 的：
+
+1. V1 从 ~memcg_page_state(memcg, NR_ANON_MAPPED)~ 里面读匿名页数量，每次读之前会 flush rstat.
+2. V2 在 ~page_counter~ 里面新增一个匿名页计数。
+3. V3 放弃精确读取匿名页，并且放弃了 anon_high 水位线。
+
+[[./anon_mem_watermark_state_update.png]]
+
+V1 和 V2 只会在越过水位线的时候增加技术。
+
+[[./anon_watermark_state.drawio.png]]
+
+V3 判断是否越线的时候，只会去 ~memcg_page_state~ 取之前并不会 flush rstat. 另外，V3 在越线的之后，每次操作匿名页都会增加计数。
+
+
+如果实际越线的时候， ~memcg_page_state~ 还没有 flush，内核并不会判断它越线了。
+如果在这之后，匿名页一直没有变化，那越线的计数不会更新，也不会触发 ~cgroup_kill~.

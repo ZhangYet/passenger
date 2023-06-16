@@ -43,30 +43,30 @@ Searching the source code, we can see that:
 This macro trick is from [[https://lwn.net/Articles/383362/][Using the TRACE_EVENT() macro (Part 3)]].
 
 #+BEGIN_SRC c
-   #define DOGS { C(JACK_RUSSELL), C(BULL_TERRIER), C(ITALIAN_GREYHOUND) }
-   #undef C
-   #define C(a) ENUM_##a
-   enum dog_enums DOGS;
-   #undef C
-   #define C(a) #a
-   char *dog_strings[] = DOGS;
-   char *dog_to_string(enum dog_enums dog)
-   {
-           return dog_strings[dog];
-   }
+	 #define DOGS { C(JACK_RUSSELL) }
+	 #undef C
+	 #define C(a) ENUM_##a
+	 enum dog_enums DOGS;
+	 #undef C
+	 #define C(a) #a
+	 char *dog_strings[] = DOGS;
+	 char *dog_to_string(enum dog_enums dog)
+	 {
+		 return dog_strings[dog];
+	 }
 #+END_SRC
 
 In ~enum dog_enums DOGS;~, the sub-macro ~C~ is ~ENUM_##a~, so this line will be expanded as:
 
 #+BEGIN_SRC c
-  enum dog_enums { ENUM_JACK_RUSSEL, ENUM_BULL_TERRIER, ENUM_ITALIAN_GRAYHOUND };
+  enum dog_enums { ENUM_JACK_RUSSEL };
 #+END_SRC
 
 When we go to ~char *dog_strings[] = DOGS;~, the sub-macro ~C~ is redifined as ~#a~.
 So this line will be expanded as:
 
 #+BEGIN_SRC c
-  char *dog_strings[] = { "JACK_RUSSEL", "BULL_TERRIER", "ITALIAN_GREYHOUND" };
+  char *dog_strings[] = { "JACK_RUSSEL" };
 #+END_SRC
 * Expand the TRACE_EVENT macro
 This marco will expand many times to generate the final codes[fn:1].
