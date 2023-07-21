@@ -42,6 +42,22 @@ sysfs 只有两个接口[fn:2]: ~show~ 和 ~store~ 。
 module programming 很有用，它可以调用 /sys/kallsyms 里面的函数，所以写一个 module 可以很方便地创建内核函数的实例（实际上也不简单）。实际本书也是用 module
 串起来讲了很多内核的 api。
 
+当然编程这种东西，光看书是没有用，这本书也不例外，要把示例跑起来（设计到内核编译，本书也有说），尤其重要的是，要明白「这有什么用」。
+
+module 主流用途是写驱动、实现 procfs 和 sysfs 。因为工作原因，我看了一些驱动的代码，如果我之前读了这本书，我会更理解一个驱动的结构，阅读代码会更方便。
+procfs 和 sysfs 是很多内核功能的入口，很多功能比如 node-exporter 就是读 procfs 下面的数据，如果要探究 procfs 暴露的系统数据含义，还得顺着 procfs
+的实现去找对应的实现。第八章讲 ioctl 的内容对我理解 blktrace 工具的源码帮助也很多大（当然部分原因也是因为我之前不太熟 ioctl）。
+
+此外还需要准备内核代码，比如第六章提到：
+
+#+BEGIN_QUOTE
+However, register_chrdev() would occupy a range of minor numbers associated with the given major.
+#+END_QUOTE
+
+单纯看书不会明白这里为什么这样说，要看源代码才知道 ~register_chrdev~ 最终调用 ~__register_chrdev_region~ 并占用256个 minor number。
+
+这本书对内核开发菜鸟和 SRE 都有所裨益。
+
 * Footnotes
 [fn:2] 不过 cgroup 接口也是在 sysfs 下面，cgroup 的 ctype 可不止这一堆接口啊。cgroup 的文件最后是用 ~__kernfs_create_file~ 创建的。
 
