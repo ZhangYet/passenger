@@ -1,0 +1,16 @@
+* hot-fix problems
+** struct percpu_counter
+refs 这个计数用来做什么？
+
+保证模块卸载加载时候不会出问题（计数大于0的时候不会被卸载）。
+** shopee_linux_ksym_init
+找到符号对应的指针，保存在 ksym 的 ptr
+** shopee_linux_register_hook
+*** shopee_linux_resolved_symbol
+找到 hook->func_name 对应的 symbol, 保存到 hook->source 里面去。
+*** shopee_linux_ftrace_handler 到底做了什么？
+*** hook.ops.flags 要怎样设置？
+** 我们需要实现的
+一个 hotfix_xxx 函数，把要 patched 的函数 xxx 包起来，调用之前增加一次 refs ，
+调用之后减少一次 refs。
+
