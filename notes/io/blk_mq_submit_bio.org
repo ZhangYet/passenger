@@ -16,3 +16,29 @@ CLOCK: [2023-08-06 Sun 13:36]--[2023-08-06 Sun 13:36] =>  0:00
 一篇相关的 blog: http://oliveryang.net/2016/10/linux-block-driver-basic-5/
 * bio_integrity_prep
 检查数据完整性。
+* IN-PROGRESS blk_mq_sched_bio_merge
+:LOGBOOK:
+CLOCK: [2023-08-07 Mon 01:47]--[2023-08-07 Mon 10:00] =>  8:13
+:END:
+其实在这里如果返回 true 的话，bio 已经 merge 进去了。
+
+这里会有一连串的调用：
+#+BEGIN_SRC c
+  __blk_mq_sched_bio_merge() {
+    if (q->elevator)
+      q->elevator->bio_merge(q, bio);
+
+    return blk_bio_list_merge();
+  }
+#+END_SRC
+
+其中 ~blk_bio_list_merge~ 会遍历 request 中的 queuelist 去寻找一个合适的 request。
+
+当 ~__blk_mq_sched_bio_merge~ 返回 true 的时候，实际上 bio 已经被 merge 到了某个 request 里面了。
+还剩下一个问题：request_queue 里面的 elevator 怎样初始化的？
+
+明天可以看 __blk_mq_alloc_request 了。
+* __blk_mq_alloc_request
+QUEUE_FLAG_RQ_ALLOC_TIME 是什么时候设置到 queue 了。
+
+tag 就是 ~struct blk_mq_tags~ 中 bitmap 的位置。那么问题来了，为什么需要 tags 呢？见[[https://docs.kernel.org/block/blk-mq.html#tag-based-completion][这个 kernel 文档]]。
