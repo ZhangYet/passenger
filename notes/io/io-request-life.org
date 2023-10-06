@@ -40,11 +40,25 @@
        |    tags 是一个 bitmap，主要特别之处在与分了不同的 word 的，这样上锁方便一点，另外还可以
        |    resize 。它会记录整个硬件队列深度，一旦满了，无法取得 tag. 队列深度是 block device 
        |    决定的。
+       | 5. blk_mq_rq_ctx_init, 正式填充 struct request, 主要要开 CONFIG_BLK_RQ_ALLOC_TIME 
+       |    才会记录 alloc_time_ns，并且在这个时候填充 start_time_ns (需要 alloc_time_ns).
+       |    硬件队列增加1.
        \-kretprobe_trampoline(blk_mq_alloc_request)
+       |  
+       |  还在 sg_start_req 中
+       |  blk_rq_map_user_iov: 把缓存数据封装成 bio 加入 request 里面。
+       |  调用 blk_rq_append_bio.
        |
        \-blk_rq_map_user_iov
        |
+       |  此处应该在 blk_execute_rq_nowait 中，但是不知道为什么少了这个调用层次。
+       |  这个函数赋值了 rq->part (block_device 的指针)，update_io_ticks 可能不会有写入。
+       |
        \-blk_account_io_start
+       |
+       |  有点奇怪，进入 blk_mq_sched_insert_request 
+       |  没有抓到调用 __blk_mq_insert_request ，估计是走了
+       |  elevator 的 insert_requests
        |
        \-blk_mq_sched_insert_request
         |
