@@ -37,7 +37,9 @@
        | 3. 取软队列(blk_mq_get_ctx)和硬件队列(blk_mq_map_queue)，需要说明 blk_mq_ctx 和
        |    blk_mq_hw_ctx 的意义。
        | 4. blk_mq_get_tag, 这个时候，data 的 flag 加上了 BLK_MQ_REQ_NOWAIT ，已经取得软硬队列。
-       |    
+       |    tags 是一个 bitmap，主要特别之处在与分了不同的 word 的，这样上锁方便一点，另外还可以
+       |    resize 。它会记录整个硬件队列深度，一旦满了，无法取得 tag. 队列深度是 block device 
+       |    决定的。
        \-kretprobe_trampoline(blk_mq_alloc_request)
        |
        \-blk_rq_map_user_iov
