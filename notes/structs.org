@@ -70,3 +70,5 @@ sbitmap_queue 用在 io tags 里面。
 #+END_SRC
 *** sbitmap_queue_get & sbitmap_queue_get_shallow
 这两个函数都会先用 get_cpu 来禁止抢占。
+
+shallow 的逻辑是加了一个 depth 的上限，底层还是调用 __sbitmap_get_word 的。
