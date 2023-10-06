@@ -1,32 +1,116 @@
 #+TITLE: the Lifetime of an IO Request 
 * An Example
 #+BEGIN_QUOTE
-sg_new_write
+(root): entry_SYSCALL_64_after_hwframe
+|
+\-entry_SYSCALL_64_after_hwframe
+ |
+ \-do_syscall_64
+  |
+  \-__x64_sys_ioctl
+   |
+   \-sg_ioctl
     |
-    \-sg_common_write
+    \-sg_ioctl_common
+     |
+     \-sg_new_write.isra.0
+      |
+      \-sg_common_write.isra.0
+       |
+       | 在 sg_common_write 到 blk_mq_alloc_request 之间
+       | 这个调用被省略了两层调用：
+       | sg_common_write -> sg_start_req -> blk_get_request -> blk_mq_alloc_request
+       |
+       | 传入了一个 request_queue, OP 是 REQ_OP_DRV_OUT : REQ_OP_DRV_IN, flag 是 0
+       | 
+       | blk_mq_alloc_request:
+       | 1. 创建一个 blk_mq_alloc_data 结构；
+       | 2. blk_queue_enter: 增加 q->q_usage_counter 计数；
+       | 3. __blk_mq_alloc_request 这是真正 alloc request 的地方，稍候展开谈这个函数；
+       | 4. 补完 rq (设置 __data_len, __sector, bio, biotail 等 field), 当然我不是很明白
+       |    为什么不在 __blk_queue_request 里面一起做了？
+       |
+       | __blk_mq_alloc_request 做的事情比较多：
+       | 1. blk_queue_rq_alloc_time 检查 q 的 queue_flags 是否设置了 QUEUE_FLAG_RQ_ALLOC_TIME；
+       |    这会决定是否设置 alloc_time_ns， alloc_time_ns 表示 reqeust 创建的时间。
+       | 2. 处理 elevator 一些复杂情况；这部分没有看懂
+       | 3. 取软队列(blk_mq_get_ctx)和硬件队列(blk_mq_map_queue)，需要说明 blk_mq_ctx 和
+       |    blk_mq_hw_ctx 的意义。
+       | 4. blk_mq_get_tag, 这个时候，data 的 flag 加上了 BLK_MQ_REQ_NOWAIT ，已经取得软硬队列。
+       |    
+       \-kretprobe_trampoline(blk_mq_alloc_request)
+       |
+       \-blk_rq_map_user_iov
+       |
+       \-blk_account_io_start
+       |
+       \-blk_mq_sched_insert_request
         |
-	\-blk_mq_alloc_request
-	|
-	\-blk_rq_map_user
-	|   |
-	|   \-blk_rq_append_bio
-	|
-	\-blk_rq_map_user_iov
-	|
-	\-blk_execute_rq_nowait
-	|   |
-        |   \-blk_mq_sched_insert_request
-	|       |
-	|       \-blk_mq_run_hw_queue
-        |           |
-        |           \-blk_mq_sched_dispatch_requests
-        |               |
-        |               \-blk_mq_get_driver_tag
-        |               |
-        |               \-blk_mq_start_request
-	|
-	|   |
-	|   \-blk_mq_request_bypass_insert
-	|
-	\-blk_account_io_start
+        \-blk_mq_run_hw_queue
+         |
+         \-__blk_mq_delay_run_hw_queue
+          |
+          \-__blk_mq_run_hw_queue
+           |
+           \-blk_mq_sched_dispatch_requests
+            |
+            \-__blk_mq_sched_dispatch_requests
+             |
+             \-blk_mq_get_driver_tag
+             |
+             \-blk_mq_dispatch_rq_list
+              |
+              \-blk_mq_start_request
+              |
+              \-scsi_queue_rq
+               |
+               \-blk_add_timer
+      |
+      \-blk_rq_map_user
+       |
+       \-blk_rq_append_bio
+      |
+      \-blk_execute_rq_nowait
+       |
+       \-blk_mq_request_bypass_insert
+
+(root): secondary_startup_64_no_verify
+|
+\-secondary_startup_64_no_verify
+ |
+ \-start_secondary
+  |
+  \-cpu_startup_entry
+   |
+   \-do_idle
+    |
+    \-flush_smp_call_function_from_idle
+     |
+     \-do_softirq
+      |
+      \-__softirqentry_text_start
+       |
+       \-blk_done_softirq
+        |
+        \-blk_complete_reqs
+         |
+         \-scsi_complete
+          |
+          \-scsi_finish_command
+           |
+           \-scsi_io_completion
+            |
+            \-scsi_end_request
+             |
+             \-blk_stat_add
+             |
+             \-blk_account_io_done
+             |
+             \-__blk_mq_end_request
+              |
+              \-blk_put_request
+              |
+              \-sg_rq_end_io
+               |
+               \-blk_mq_free_request
 #+END_QUOTE

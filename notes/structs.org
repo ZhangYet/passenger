@@ -1,0 +1,72 @@
+#+TITLE: kernel 数据结构笔记
+* sbitmap_queue
+sbitmap_queue 用在 io tags 里面。
+#+BEGIN_SRC
+  sbitmap_queue
+    |      |- sb    : sbitmap
+    |      |- wake_batch: 唤醒 waiter 之前需要释放的 bit 数目
+    |      |- ws    : wait queue(sbq_wait_queue)
+    |      |- wake_index: ws 下个需要唤醒的 wait queue
+    |      |- ws_active: 当前唤醒的 wait queue 数量
+    |      |- min_shallow_depth: 需要搞清楚什么是 shallow_depth
+    |
+    v
+  sbitmap --- depth : 整个 map 已的 bit 数目
+    |      |- shift : 每个 word 已经使用的 bit 数目的对数
+    |      |- map_nr: 使用中的 word 数量
+    |      |- round_robin: 是否按照 round-robin 顺序占用 bit
+    |      |- map   : sbitmap_word 的存储结构，估计是个数组
+    |      |- alloc_hint: 缓存
+    |
+    v
+  sbitmap_word --- depth : 被使用的 bit 数目
+                |- word  : free bits
+                \- cleared : cleared bit
+#+END_SRC
+** 相关函数
+*** sbitmap_init_node
+#+BEGIN_SRC c
+  int sbitmap_init_node(struct sbitmap *sb, unsigned int depth, int shift,
+		      gfp_t flags, int node, bool round_robin, bool alloc_hint);
+  /*
+   bits_per_word = 1U << shift
+   map_nr = depth / bits_per_word 向上取整
+   sb->map 在指定的 numa node 上创建 map_nr 个 sbitmap_word,
+   除了最后一个 word 每个分配的 depth 为 bits_per_word,
+   最后一个 word 就是剩下的那些 bit
+   */
+#+END_SRC
+*** sbitmap_get
+#+BEGIN_SRC c
+  /* 找到属于哪个 word */
+  #define SB_NR_TO_INDEX(sb, bitnr) ((bitnr) >> (sb)->shift)
+  /* 找到这个 word 里面哪个 bit */
+  #define SB_NR_TO_BIT(sb, bitnr) ((bitnr) & ((1U << (sb)->shift) - 1U))
+
+  int sbitmap_get(struct sbitmap *sb);
+  /*
+   从一个 percpu 变量那里获得一个初始数，这个数字可能是0，意味着从第0个 word 开始。
+   否则就是从某个随机数开始，首先会通过 SB_NR_TO_INDEX 宏，获得对应的 word 的 index，
+   然后从这个 index 对应的 word 开始 sbitmap_fined_bit_index.
+
+   如果这个 word 里面找不到空闲的 bit, 那么我们就进入下一个 word, 直到遍历所有 map_nr
+   个 word。
+
+   找到对应的 bit 之后，还要加上 index << sb->shift, 这给出了这个可用的 bit 在整个 sbitmap
+   中的位置。
+   */
+#+END_SRC
+*** sbitmap_resize
+这个函数其实不复杂，反正也不能改 shift，就是增减 sbitmap 里面 word 的个数。
+*** sbitmap_show & sbitmap_bitmap_show
+这两个函数用来输出 sbitmap_show 到 seq_file 里面，回头看看用在哪个 debugfs 接口里面。
+*** sbitmap_queue_init_node
+#+BEGIN_SRC c
+  int sbitmap_queue_init_node(struct sbitmap_queue *sbq, unsigned int depth,
+			    int shift, bool round_robin, gfp_t flags, int node);
+  /*
+    初始化一个 sbitmap_queue, 最重要的逻辑是 sbitmap_init_node，
+    其余的逻辑就是初始化 waitqueue.*/
+#+END_SRC
+*** sbitmap_queue_get & sbitmap_queue_get_shallow
+这两个函数都会先用 get_cpu 来禁止抢占。
