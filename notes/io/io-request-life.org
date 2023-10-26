@@ -62,16 +62,41 @@
        |
        \-blk_mq_sched_insert_request
         |
+	|  什么是 SRCU-protected structure?
+	|  这里为什么有两种锁？
+	|  上锁->判断是否 need_run->解锁-> if need_run then run
+	|  need_run 的判断条件：
+	|  !blk_queue_quiesced && blk_mq_hctx_has_pending
+	|  后面一个条件比较好了解，但是前面一个需要查一下什么时候，
+	|  队列会被 quiesced (本质上就是设置一个 bit)。
+	|
         \-blk_mq_run_hw_queue
          |
+	 |  什么时候 blk_mq_hctx_stopped?
+	 |  非 async 请求且 hctx 没有 blocking 都直接 get_cpu()
+	 |  然后走 __blk_mq_run_hw_queue()
+	 |  但凡这里走不同，都走延时队列。
+	 |  hctx->run_work 在哪里定义？
+	 |
          \-__blk_mq_delay_run_hw_queue
-          |
+          |  
+	  |  很单纯的函数，如果 hctx->flags & BLK_MQ_F_BLOCKING
+	  |  会标注 might_sleep()
+	  |  然后就是上锁，dispatch_requests.
+	  |
           \-__blk_mq_run_hw_queue
            |
+	   |  这里有意思的是，如果 __blk_mq_sched_dispatch_requests 
+	   |  返回了 EAGAIN，那么会重入 blk_mq_run_hw_queue.
+	   |
            \-blk_mq_sched_dispatch_requests
             |
             \-__blk_mq_sched_dispatch_requests
-             |
+             |                                                              
+             | __blk_mq_sched_dispatch_requests -> blk_mq_do_dispatch_sched 
+             | -> __blk_mq_do_dispatch_sched -> blk_mq_get_driver_tag       
+	     | 
+             |                                                              
              \-blk_mq_get_driver_tag
              |
              \-blk_mq_dispatch_rq_list
