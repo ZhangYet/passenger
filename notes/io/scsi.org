@@ -1,6 +1,6 @@
 #+TITLE: SCSI 子系统
 * 简介
-SCSI 在整个 io 的流程中，处于块设备驱动层下面。
+SCSI 在整个 io 的流程中，处于块设备驱动层下面[fn:1]。
 
 #+CAPTION: io 分层
 #+NAME: fig:io-level
@@ -25,7 +25,7 @@ SCSI 系统本身也有分层。
 #+NAME: fig:scsi-dev
 [[./picts/scsi-tree.jpeg]]
 
-Linux 使用 <host:channel:id:lun> 定位唯一的 SCSI 设备。
+Linux 使用 <host, channel, id, lun> 定位唯一的 SCSI 设备。
 
 host 对应主机适配器，它连接在主机 I/O 总线上，channel 是 SCSI 信道编号/ SCSI 总线编号，
 由主机适配器固件维护。id 为目标节点标识符，lun 为目标节点内的逻辑单元编号。LUN 是 I/O
@@ -37,10 +37,25 @@ host 对应主机适配器，它连接在主机 I/O 总线上，channel 是 SCSI
 SCSI 设备注册称块设备。
 
 由两个比较重要的函数：
-** sd_probe
+** ~sd_probe~
 这个函数不是 sd 独有的，sd.c 里面由属于 SCSI disk 设备的 ~sd_probe~.
 
 每当新的 SCSI 设备插入，中间层就会调用 ~sd_probe~ ，创建新的 ~scsi_disk~ 结构来表示。
-** sd_init_command
+** ~sd_init_command~
 这个函数将 ~struct request~ 转换成 SCSI 命令（返回值表示转换的结果）。
+* 中间层
+这里涉及一些概念：主机总线适配器(HBA).
 
+中间层提供：
+
+1. 低层驱动器注册和错误处理；
+2. 较高层和较低层的 SCSI 命令排队；
+3. 将较高层传来的命令转换成 SCSI 请求；
+4. 接收较低层完成请求之后的响应并同志较高层；
+5. 错误和超时处理；
+* 较低层
+与物理设备连接的特定驱动器。
+
+* Footnotes
+
+[fn:1] https://blog.csdn.net/sinat_37817094/article/details/120357371 
