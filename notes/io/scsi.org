@@ -1,0 +1,46 @@
+#+TITLE: SCSI 子系统
+* 简介
+SCSI 在整个 io 的流程中，处于块设备驱动层下面。
+
+#+CAPTION: io 分层
+#+NAME: fig:io-level
+[[./picts/io-level.png]]
+
+SCSI 系统本身也有分层。
+
+#+CAPTION: SCSI 分层
+#+NAME: fig:scsi-level
+[[./picts/scsi-level.jpeg]]
+
+顶层是较高层，跟内核交互。中间层也称公共层或同一层。
+最后是较低层，代表使适用 SCSI 的物理接口的实际驱动器。
+
+#+CAPTION: SCSI 分层（细分）
+#+NAME: fig:scsi-level-detail
+[[./picts/scsi-level-1.jpeg]]
+
+在源码中，我们比较关注块设备的源码，在 sd.c 中。
+
+#+CAPTION: SCSI 设备
+#+NAME: fig:scsi-dev
+[[./picts/scsi-tree.jpeg]]
+
+Linux 使用 <host:channel:id:lun> 定位唯一的 SCSI 设备。
+
+host 对应主机适配器，它连接在主机 I/O 总线上，channel 是 SCSI 信道编号/ SCSI 总线编号，
+由主机适配器固件维护。id 为目标节点标识符，lun 为目标节点内的逻辑单元编号。LUN 是 I/O
+终点存储设备。
+* 较高层
+较高层由一组驱动器组成。负责接受上层请求并转换称 SCSI 请求。
+
+我们比较关注的 SCSI 磁盘驱动器由 drivers/scsi/sd.c 实现，调用了 ~register_blkdev~ 将
+SCSI 设备注册称块设备。
+
+由两个比较重要的函数：
+** sd_probe
+这个函数不是 sd 独有的，sd.c 里面由属于 SCSI disk 设备的 ~sd_probe~.
+
+每当新的 SCSI 设备插入，中间层就会调用 ~sd_probe~ ，创建新的 ~scsi_disk~ 结构来表示。
+** sd_init_command
+这个函数将 ~struct request~ 转换成 SCSI 命令（返回值表示转换的结果）。
+
