@@ -55,7 +55,38 @@ SCSI 设备注册称块设备。
 5. 错误和超时处理；
 * 较低层
 与物理设备连接的特定驱动器。
+* 工作流程[fn:2]
+请求队列调用 SCSI 层的出队函数，到了5.15，这个出队函数是 ~scsi_queue_rq~.
+
+参考文献[fn:2]提及的流程都在 ~scsi_queue_rq~ 中实现了。
+
+1. 取出请求，这里没有看到调用 ~__elv_next_request~(已经改名为 ~elv_next_request~);
+2. 构造 SCSI 命令，在 ~scsi_prepare_cmd~ 中实现；
+3. 建立 DMA 映射，也在 ~scsi_prepare_cmd~ -> ~scsi_setup_scsi_cmnd~ -> ~scsi_alloc_sgtable~ (改名了)。
+   如果不是走 ~blk_rq_is_passthrough~ 这条路线，会走 ~scsi_cmd_to_driver(cmd)-init_command(cmd)~.
+   对 sd 来说，就是 ~sd_init_command~ (里面的 ~sd_setup_read_write_cmnd~ 依然会调用 ~scsi_alloc_sgtable~).
+4. request dequeue, 文档提及的 ~blk_dequeue_request~ 已经在 a1ce35fa49852db60fc6e268038530be533c5b15
+   被删除了。
+5. queuecommand, 这是在 ~scsi_dispatch_cmd~ 里面调用的。
+   
+** ~scsi_target_queue_ready~
+这个函数里面涉及若干个 scsi 的状态。
+
+~target_blocked~ 会在 ~scsi_set_blocked~ 中设为 ~max_target_blocked~(默认是3，初始化的时候设定的)。
+在 ~scsi_finish_command~ 中被置为0，在 ~scsi_target_is_busy~ 中，如果这个值大于0，会被认为 busy.
+有意思的是在 ~scsi_target_queue_ready~ 里面，这个值会递减。
+
+~can_queue~ 如果小于等于0，说明没有限制（所以这里面的逻辑才那么混乱）。
+
+~target_bush~ 表示在 LLD 中实际活跃的命令数。
+** ~scsi_host_queue_ready~
+如果 host 没有 ready ，也可能导致 starved_entry 转移到 host 的 starved_list 上。
+** ~scsi_prepare_cmd~
+填充 SCSI cmd .
+** ~scsi_dispatch_cmd~
 
 * Footnotes
+
+[fn:2] https://yalungdotblog.files.wordpress.com/2012/02/scsie5ad90e7b3bbe7bb9fe79fa5e8af86e680bbe7bb93.pdf 
 
 [fn:1] https://blog.csdn.net/sinat_37817094/article/details/120357371 

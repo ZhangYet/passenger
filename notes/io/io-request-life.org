@@ -103,8 +103,13 @@
               |
               \-blk_mq_start_request
               |
+	      |  blk_mq_rq_to_pdu 这个函数的逻辑我是真的看不懂。
+	      |  
               \-scsi_queue_rq
-               |
+	       |
+               |  这个函数是在 scsi_queue_rq 中，在 scsi_dispatch_cmd 之前
+	       |  的 blk_mq_start_request 里面被调用。
+	       |  
                \-blk_add_timer
       |
       \-blk_rq_map_user
