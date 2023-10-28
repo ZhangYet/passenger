@@ -56,6 +56,7 @@ SCSI 设备注册称块设备。
 * 较低层
 与物理设备连接的特定驱动器。
 * 工作流程[fn:2]
+** 下发
 请求队列调用 SCSI 层的出队函数，到了5.15，这个出队函数是 ~scsi_queue_rq~.
 
 参考文献[fn:2]提及的流程都在 ~scsi_queue_rq~ 中实现了。
@@ -68,7 +69,8 @@ SCSI 设备注册称块设备。
 4. request dequeue, 文档提及的 ~blk_dequeue_request~ 已经在 a1ce35fa49852db60fc6e268038530be533c5b15
    被删除了。
 5. queuecommand, 这是在 ~scsi_dispatch_cmd~ 里面调用的。
-   
+** 完成
+完成部分,我没有找到 scsi_done 相关的代码,只能从下半段开始看了。
 ** ~scsi_target_queue_ready~
 这个函数里面涉及若干个 scsi 的状态。
 
