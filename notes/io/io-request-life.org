@@ -182,13 +182,24 @@
              |
 	     \- __blk_mq_end_request
 	      |
+	      |  有 blk_throtl_stat_add
+	      |  还有 stats->callbacks
+	      |  
               \-blk_stat_add
-              |
+              | 
+	      \-blk_mq_sched_completed_request
+	      |
               \-blk_account_io_done
               |
+	      |  找不到这个函数的注册入口啊。
+	      |
               \-sg_rq_end_io
                |
+	       |  其实就是包了一下 blk_mq_free_request 而已
+	       |
                \-blk_put_request
                 |
+		|  在这里才会把 tag 归还到 hctx 里面
+		|  
                 \-blk_mq_free_request
 #+END_QUOTE
