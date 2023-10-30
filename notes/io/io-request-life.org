@@ -135,28 +135,60 @@
      \-do_softirq
       |
       \-__softirqentry_text_start
+       |  
+       |  在 blk_mq_init 里面用 open_softirq 注册在
+       |  BLOCK_SOFTIRQ 这个中断里面。所以我们要找找哪个函数
+       |  raise 这个中断，这样我们可以知道上半是在哪里发出的
        |
        \-blk_done_softirq
-        |
+        |  
+	|  这个函数接收每个 cpu 上的 blk_cpu_done list
+	|  跟 scsi 那篇文档印证了。
+	|  遍历列表上每个 request ，然后调用 mq_ops->complete 
+	|
         \-blk_complete_reqs
          |
+	 |  在我们这个例子里面 complete 就是 scsi_complete.
+	 |  scsi_decide_disposition: 这个函数其实就是读 cmd 里面的 flag.
+	 |  如果返回的 disposition 是 SUCCESS，那么就调用 scsi_finish_command
+	 |  我们看看两种插入队列的情况以及调用 scsi_eh_scmd_add.
+	 |
+	 |  scsi_queue_insert 有两个参数，一个是需要重新排队的 cmd, 另一个是需要重排的 reason
+	 |  reason 决定了最后是 host 还是 target block. 这个函数最后会调用 blk_mq_requeue_request(插到哪个队列里面？)
+	 |
+	 |  如果出现其他错误，会调用 scsi_eh_scmd_added
+	 |  这个函数首先会把 host 的状态设置为 SHOST_RECOVERY. 然后调用 scsi_eh_reset 
+	 |  再将入参 scmd 中的 eh_entry 加到 host 的 eh_cmd_q 上。
+	 |  最后会进行 call_rcu 这一步久完全不知道干了什么，好像只是增加了计数？
+	 |
          \-scsi_complete
           |
+	  |  这个函数首先会 scsi host/target/device 的 blocked 设置为0，然后调用 scsi_io_completion.
+	  |
           \-scsi_finish_command
            |
+	   |  
            \-scsi_io_completion
             |
+	    |  1. blk_update_request: 这个函数会接收已经处理的字节数（bytes）,
+	    |     然后合集 request 里面的 bio 总字节数跟这个已处理字节数是否相等，如果不峡谷你等，
+	    |     说明还有需要处理的 bio， 后续处理在 scsi_io_completion 里面。
+	    |  2. add_disk_randomness: 不明。
+	    |  3. destroy_rcu_head: 也是不明白这个 cmd->rcu 到底是什么。
+	    |  4. scsi_mq_uninit_cmd: 释放资源，但是里面有一个动态的 uninit_command 不清楚具体释放了什么。
+	    |  5. scsi_run_queue_async: 这里又跑了异步任务和 blk_mq_run_hw_queues?
+	    |
             \-scsi_end_request
              |
-             \-blk_stat_add
-             |
-             \-blk_account_io_done
-             |
-             \-__blk_mq_end_request
+	     \- __blk_mq_end_request
+	      |
+              \-blk_stat_add
               |
-              \-blk_put_request
+              \-blk_account_io_done
               |
               \-sg_rq_end_io
                |
-               \-blk_mq_free_request
+               \-blk_put_request
+                |
+                \-blk_mq_free_request
 #+END_QUOTE
