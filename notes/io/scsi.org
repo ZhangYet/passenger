@@ -71,7 +71,7 @@ SCSI 设备注册称块设备。
 5. queuecommand, 这是在 ~scsi_dispatch_cmd~ 里面调用的。
 ** 完成
 完成部分,我没有找到 scsi_done 相关的代码,只能从下半段开始看了。
-** ~scsi_target_queue_ready~
+*** ~scsi_target_queue_ready~
 这个函数里面涉及若干个 scsi 的状态。
 
 ~target_blocked~ 会在 ~scsi_set_blocked~ 中设为 ~max_target_blocked~(默认是3，初始化的时候设定的)。
@@ -81,13 +81,33 @@ SCSI 设备注册称块设备。
 ~can_queue~ 如果小于等于0，说明没有限制（所以这里面的逻辑才那么混乱）。
 
 ~target_bush~ 表示在 LLD 中实际活跃的命令数。
-** ~scsi_host_queue_ready~
+*** ~scsi_host_queue_ready~
 如果 host 没有 ready ，也可能导致 starved_entry 转移到 host 的 starved_list 上。
-** ~scsi_prepare_cmd~
+*** ~scsi_prepare_cmd~
 填充 SCSI cmd .
-** ~scsi_dispatch_cmd~
+*** ~scsi_dispatch_cmd~
+** 错误处理[fn:3]
+#+BEGIN_SRC c
+  if (shost->transportt->eh_strategy_handler)
+    shost->transportt->eh_strategy_handler(shost);
+  else
+    scsi_unjam_host(shost);
+#+END_SRC
+整个参考文献就是围绕这四行代码。
+*** eh_strategy_handler
+这里以 ~sas_scsi_recover_host~ 为例。
+
+1. 所有要处理的 scmd 从 eh_cmd_q 移动到临时变量 eh_work_q 上。
+2. ~sas_eh_handle_sas_errors~
+3. ~sas_ata_eh~
+4. ~scsi_eh_ready_devs~
+5. ~sas_eh_handle_resets~
+6. ~sas_ata_strategy_handler~
+7. ~scsi_eh_flush_done_q~
 
 * Footnotes
+
+[fn:3] https://docs.kernel.org/scsi/scsi_eh.html
 
 [fn:2] https://yalungdotblog.files.wordpress.com/2012/02/scsie5ad90e7b3bbe7bb9fe79fa5e8af86e680bbe7bb93.pdf 
 
