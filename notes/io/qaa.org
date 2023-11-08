@@ -1,0 +1,32 @@
+#+TITLE: io Q and A
+#+AUTHOR: Dantezy<zhangyet@gmail.com>
+
+* ~struct scsi_request~ 中的 resid_len 是什么意思？起什么作用？什么时候需要更新？
+单纯从注释来说，是 redidual count.
+
+从 742ee69b92d9559e968f70cf0a49157866f8fbef 这个 commit 来看，
+最初的初始化是 ~rq->resid_len = blk_rq_bytes(rq)~.
+
+* passthrough request 是什么？
+由如下函数判断一个 ~struct request~ 是否 passthrough:
+#+BEGIN_SRC c
+  enum req_opf {
+    /*...*/
+    /* Driver private requests */
+    REQ_OP_DRV_IN		= 34,
+    REQ_OP_DRV_OUT	        = 35,
+    /*...*/
+  }
+
+  static inline bool blk_op_is_passthrough(unsigned int op)
+  {
+	  op &= REQ_OP_MASK;
+	  return op == REQ_OP_DRV_IN || op == REQ_OP_DRV_OUT;
+  }
+
+  static inline bool blk_rq_is_passthrough(struct request *rq)
+  {
+	  return blk_op_is_passthrough(req_op(rq));
+  }
+#+END_SRC
+根据[[https://blog.csdn.net/flyingnosky/article/details/121689114][这篇文章]]的说法，就是 SCSI 下发的 IO，不是从 block 层下发来的。

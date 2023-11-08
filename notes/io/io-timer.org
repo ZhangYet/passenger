@@ -1,0 +1,16 @@
+#+TITLE: io 超时🇭相关笔记
+* 数据结构
+
+#+BEGIN_SRC c
+  struct request {
+    /* ... */
+    unsigned int timeout;
+    /* ... */
+  };
+
+  struct request_queue {
+    /* ... */
+    struct timer_list	timeout;
+    /* ... */
+  }
+#+END_SRC
