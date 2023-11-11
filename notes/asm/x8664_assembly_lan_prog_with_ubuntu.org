@@ -1,0 +1,114 @@
+#+TITLE: x86-64 Assembly Language Programming with Ubuntu
+* Chap 1
+简介行内容，没啥好说的。
+* Chap 2
+** Data Storage Size
+#+CAPTION: Storage sizes
+| Storage         | Size(bits) | Size(bytes) |
+|-----------------+------------+-------------|
+| Byte            | 8-bits     | 1 byte      |
+| Word            | 16-bits    | 2 bytes     |
+| Double-word     | 32-bits    | 4 bytes     |
+| Quadword        | 64-bits    | 8 bytes     |
+| Double quadword | 128-bits   | 16 bytes    |
+
+#+CAPTION: C/C++ data type sizes
+| C/C++ Declaration | Storage     | Size(bits) | Size(bytes) |
+|-------------------+-------------+------------+-------------|
+| char              | Byte        | 8-bits     | 1 byte      |
+| short             | Word        | 16-bits    | 2 bytes     |
+| int               | Double-word | 32-bits    | 4 bytes     |
+| unsigned int      | Double-word | 32-bits    | 4 bytes     |
+| long              | Quadword    | 64-bits    | 8 bytes     |
+| long long         | Quadword    | 64-bits    | 8 bytes     |
+| char *            | Quadword    | 64-bits    | 8 bytes     |
+| int *             | Quadword    | 64-bits    | 8 bytes     |
+| float             | Double-word | 32-bits    | 4 bytes     |
+| double            | Quadword    | 64-bits    | 8 bytes     |
+
+** CPU
+
+ALU: Arithmetic Logic Unit 算术和逻辑单元。
+
+*** 寄存器
+
+**** GPRs 通用寄存器
+#+CAPTION: 通用寄存器
+| 64-bit | 低位32-bit | 低位16-bit | 低位8-bit |
+|--------+------------+------------+-----------|
+| rax    | eax        | ax         | al        |
+| rbx    | ebx        | bx         | bl        |
+| rcx    | ecx        | cx         | cl        |
+| rdx    | edx        | dx         | dl        |
+| rsi    | esi        | si         | sil       |
+| rdi    | edi        | di         | dil       |
+| rbp    | ebp        | bp         | bpl       |
+| rsp    | esp        | sp         | spl       |
+| r8     | r8d        | r8w        | r8b       |
+| r9     | r9d        | r9w        | r9b       |
+| r10    | r10d       | r10w       | r10b      |
+| r11    | r11d       | r11w       | r11b      |
+| r12    | r12d       | r12w       | r12b      |
+| r13    |            |            |           |
+| r14    |            |            |           |
+| r15    |            |            |           |
+
+#+CAPTION: rax 可视化
+#+BEGIN_EXAMPLE
+                                     /               eax                \
+rax = |******************************|****************|********|********|
+                                                      \   ah   /\   al  /
+						      \        ax       /
+#+END_EXAMPLE
+
+**** RSP: 栈寄存器
+保存栈顶。
+
+**** RBP: 基指针寄存器
+
+**** RIP: 指令指针寄存器
+指向下一条要执行指令的指针。
+
+**** rFlags: Flag 寄存器和存储器
+转台喝 CPU 控制信息。
+
+**** XMM 寄存器
+
+*** 缓存
+一级缓存和二级缓存。
+*** 主存
+主存可以看成连续的 bytes。
+
+#+CAPTION: 小存储 2byte 实例
+#+BEGIN_EXAMPLE
+|15|14|13|12|11|10|9|8|7|6|5|4|3|2|2|0|
+|     MSB             |       LSB     |
+#+END_EXAMPLE
+** 存储
+#+CAPTION: 程序内存
+#+BEGIN_EXAMPLE
+high    =====================
+              stack              自顶向下
+	        .
+		.
+		.
+	       heap              heap 动态申请的数据(alloc)
+	=====================
+	BSS - uninitialized data 未初始化数据段
+	=====================
+	       data              initialized data(汇编阶段被初始化的值)
+	=====================
+	     text(code)          machine language
+	=====================
+	      reserved           not available to user programs
+low 	=====================
+#+END_EXAMPLE
+** memory hierarchy
+* chap 3
+** 整数表示
+补码。
+** 有符号和无符号运算
+** 浮点数
+浮点数运算。
+** 字符与字符串
+* chap 4
