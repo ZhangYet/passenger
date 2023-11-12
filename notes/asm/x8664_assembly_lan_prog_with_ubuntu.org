@@ -112,3 +112,41 @@ low 	=====================
 浮点数运算。
 ** 字符与字符串
 * chap 4
+定义常量：
+#+BEGIN_SRC asm
+  <name>	equ	<value>
+#+END_SRC
+
+在 data 段定义初始化变量
+#+BEGIN_SRC asm
+  <varName>	<dataType>	<initValue>
+#+END_SRC
+#+CAPTION: data 段定义
+#+BEGIN_EXAMPLE
+bVar db 10
+#+END_EXAMPLE
+
+在 BSS 段定义未初始化变量
+#+BEGIN_SRC asm
+  <variableName>    <resType>     <count>
+#+END_SRC
+#+CAPTION: 在 BSS 段定义 array
+#+BEGIN_EXAMPLE
+bArr resb 10
+#+END_EXAMPLE
+* chap 5
+* Assemble/Link/Load
+
+#+BEGIN_EXAMPLE
++------------+     /----------\      +-------------+     /------\     +------------+
+|source file |---> | Assemble |----->| Object File |---->| Link |---->| Executable |
++------------+     \----------/      +-------------+     \------/     +------------+
+#+END_EXAMPLE
+Loader 不用关心。
+
+这一章讲 list 信息的内容还要结合别的实例代码看看
+* chap 6
+Debugger ，跳过。
+* chap 7
+指令集简介
+** Data Movement
