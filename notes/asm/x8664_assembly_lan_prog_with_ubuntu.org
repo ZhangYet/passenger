@@ -149,4 +149,27 @@ Loader 不用关心。
 Debugger ，跳过。
 * chap 7
 指令集简介
-** Data Movement
+** 7.2 - 7.4 Data Movement
+这部分主要的指令是 ~mov~:
+#+BEGIN_SRC asm
+  mov eax, dword [myVar] ; dword 是长度，
+  mov <desc>, <src>	
+#+END_SRC
+如果要从内存读取值，需要~[]~:
+#+BEGIN_SRC asm
+  mov rax, qword [var1] ; 将 var1 的值读到 rax
+  mov rax, var1         ; 将 var1 的地址读到 rax	  
+#+END_SRC
+读内存地址有另外一个指令：
+#+BEGIN_SRC asm
+  lea <reg64>, <mem>
+#+END_SRC
+最后是一些涉及转换的内容，比如从 quadword 读一个 byte 到另外一个寄存器。
+从大到小的转换要小心截断。
+#+CAPTION: 截断示例
+#+BEGIN_SRC asm
+  mov rax, 500
+  mov byte [bVal], al	
+#+END_SRC
+
+从小到大的转换主要是要区分有符号和无符号，无符号填0即可，有符号需要根据符号选择填0或者填1.
