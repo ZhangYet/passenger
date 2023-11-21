@@ -1,4 +1,5 @@
-#+TITLE: the Lifetime of an IO Request 
+#+TITLE: the Lifetime of an IO Request
+#+OPTIONS: ^:nil
 * An Example
 #+BEGIN_QUOTE
 (root): entry_SYSCALL_64_after_hwframe
