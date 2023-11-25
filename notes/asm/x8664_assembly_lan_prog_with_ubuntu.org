@@ -174,3 +174,69 @@ Debugger ，跳过。
 #+END_SRC
 
 从小到大的转换主要是要区分有符号和无符号，无符号填0即可，有符号需要根据符号选择填0或者填1.
+** 7.5 Integer Arithmetic Instructions
+#+BEGIN_SRC asm
+  add <dest>, <src> ; <dest> = <dest> + <src>
+  inc <operand>	  
+#+END_SRC
+两边长度要对齐。
+
+特殊情况是进位：
+#+BEGIN_SRC asm
+  adc <dest>, <src> ; <dest> = <dest> + <src> + <carryBit>
+#+END_SRC
+
+carryBit 放在 rFlag 寄存器里面。
+
+减法与加法类似，不过我不知道如果减出负数来怎么办我并不知道。
+
+无符号乘法的独特之处是，其中一个乘数在哪个寄存器里面，是根据另一个乘数的长度决定的，总的来说，都在 A 系列的寄存器里面。
+
+#+BEGIN_SRC asm
+  mul <op8>  ; ax = al * <src>
+  mul <op16> ; dx:ax = ax * <src>
+  mul <op32> ; edx:eax = eax * <src>
+  mul <op64> ; rdx:rax = rax * <src>
+#+END_SRC
+
+有符号乘法可以像无符号乘法一样，就一个乘数。但是也可以加上 <desc>.
+
+除法没有深入，商和余数会放在不同的寄存器，也是会根据除数的长度有变化。
+** 7.6 逻辑运算
+~xor~, ~and~, ~or~ 都不能是内存，dest 也不能是 imm。
+
+~not~ 的 operand 也不能是 imm.
+
+逻辑左移/右移 ~shl~ / ~shr~ 没啥很特别的，就是记住，左移是乘2，右移是除2.
+
+但是算术左移感觉跟逻辑左移没有区别，右移有个重要的点是：要保持符号位不变。
+
+rotate 这个运算我就不知道它实际有什么作用。
+** 7.7 控制语句
+最基本的是 label ，和无条件跳转。
+#+BEGIN_SRC asm
+  jump <lable>
+  
+<label>:
+  xxx
+  xxx
+#+END_SRC
+
+然后是 condition jmp 指令，它有两部分：compare 部分会把比较结果放在 rFlag 寄存器里面，
+然后 condition jmp 跳转到对应的 label。
+#+BEGIN_SRC
+  cmp eax, 3 ; compare eax with 3
+  je <label> ; if <op1> == <op2>, jump to <label>
+#+END_SRC
+
+循环可以用 condition jump 实现。但是可以用 ~loop~:
+#+BEGIN_SRC
+  loop <label>
+  ;;
+  dec rcx
+  cmp rcx, 0
+  jne <label>
+#+END_SRC
+
+简而言之，~loop~ 固定使用 rcx 递减实现了条件跳转。
+* chap 8
