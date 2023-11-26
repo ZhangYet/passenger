@@ -240,3 +240,16 @@ rotate 这个运算我就不知道它实际有什么作用。
 
 简而言之，~loop~ 固定使用 rcx 递减实现了条件跳转。
 * chap 8
+register mode, imm mode 都没有什么可以说的，memory mode 会有点麻烦，
+因为会有取值和取地址的区别。
+
+列表取值需要注意，前进的步长需要由列表 size 调整。
+
+#+CAPTION: Size and step 
+| Size        | Size(bytes) |
+|-------------+-------------|
+| byte        |           1 |
+| word        |           2 |
+| double-word |           4 |
+| quadword    |           8 |
+* chao 9
