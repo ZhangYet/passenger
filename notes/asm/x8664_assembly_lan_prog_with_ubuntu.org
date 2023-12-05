@@ -252,4 +252,28 @@ register mode, imm mode 都没有什么可以说的，memory mode 会有点麻�
 | word        |           2 |
 | double-word |           4 |
 | quadword    |           8 |
-* chao 9
+* chap 9
+栈就两个指令，用到 rsp 寄存器：
+
+#+BEGIN_SRC asm
+  push <op64>  ; rsp dec 8(1 quadword), set rsp's value to be operand
+  pop <op64>   ; set operand to be rsp's value, rsp inc 8
+#+END_SRC
+* chap 10
+程序开发就都是老话了。
+* chap 11
+这一章有价值的就是单行宏和多项宏定义的方式。
+#+CAPTION: 单行宏
+#+BEGIN_SRC asm
+  %define mulby4(x)  shl x, 2
+
+  mulby4(rax)
+#+END_SRC
+
+#+CAPTION: 多行宏
+#+BEGIN_SRC
+  %macro <name> <number of args>
+    ; [body]
+  %endmacro
+#+END_SRC
+引用参数用 ~%<number>~ 从1开始。
