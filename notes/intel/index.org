@@ -1,0 +1,19 @@
+#+TITLE: Intel 开发手册阅读笔记
+* HWP(From 15.4.3)
+下面两个 performance 都是 IA32_HWP_CAPABILITIES 的内容。
+
+Guaranteed_Performance 是硬件在当前操作限制下可用性能的 best-effort approximation 。Guaranteed_Perference 变动主要因为
+operational mode 的转换，包括能源或者 RAPL，或者 TDP level[fn:1]。Guaranteed_Performance 的改编会产生中断，也会改变
+IA32_HWP_Status MSR.
+
+Most_Efficient_Performance 返回 IA32_HWP_REQUEST 的实用下限。
+
+操作系统通过 IA32_HWP_REQUEST MSR 来控制 HWP 。IA32_HWP_REQUEST 和 IA32_HWP_REQUEST_PKG 中，如果 IA32_HWP_REQUEST MSR
+control bit 设置了，所有 IA32_HWP_REQUEST 中没有设置的值都用 IA32_HWP_REQUEST_PKG 的值，否则都用 IA32_HWP_REQUEST 的值。
+这些设置不一定能达到。因为受限于硬件。
+
+IA32_HWP_CAPABILITIES MSR 提供了 HWP 状态转换的通知，一旦发现有变，软件需要查询 IA32_HWP_CAPABILITIES.
+
+* Footnotes
+
+[fn:1] 这是啥？ 
