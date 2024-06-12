@@ -1,0 +1,8 @@
+#+TITLE: metrics 笔记
+#+OPTIONS: ^:nil
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+
+本笔记记录一些 metrics ，解释它们的原理
+
+#+INCLUDE: "./sysbench.org" :minlevel 1
+#+INCLUDE: "./memory.stat.org" :minlevel 1

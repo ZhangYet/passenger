@@ -1,0 +1,4 @@
+* 基本原理
+~memory.stat~ 是 cgroup v1 的 stat 接口。
+不过这不重要，因为无论是 v1 还是 v2 ，它的实现都是 ~memcg_stat_show~.
+

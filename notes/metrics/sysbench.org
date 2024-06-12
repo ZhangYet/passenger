@@ -1,0 +1,20 @@
+* lkp 中 sysbench 输出
+
+lkp 里面 sysbench 的输出是在 lkp-tests/programs/sysbench/parse
+完成的。
+
+#+TITLE: lkp 输出跟 sysbench 对比
+| lkp                   | sysbench               | sysbench 中的含义 |
+|-----------------------+------------------------+-------------------|
+| throughput_ops/s      | Total operations       |                   |
+| throughput_MB/s       | transferred            |                   |
+| workload              | total number of events |                   |
+| throughput_events/s   | events                 |                   |
+| latency_ms.min        | min                    |                   |
+| latency_ms.avg        | avg                    |                   |
+| latency_ms.max        | max                    |                   |
+| latency_ms.95th       | 95th percentile        |                   |
+| events/thread.avg     | events avg             |                   |
+| events/thread.stddev  | events stddev          |                   |
+| runtime/thread.avg    | execution time         |                   |
+| runtime/thread.stddev | execution time         |                   |
