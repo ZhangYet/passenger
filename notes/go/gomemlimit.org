@@ -1,0 +1,25 @@
+* GOMEMLIMIT 相关笔记
+全部的讨论见：https://github.com/golang/go/issues/48409
+** 历史
+[[https://go-review.googlesource.com/c/go/+/393401][393401]] 是第一个实现的 commit，这个 commit 主要作用是在 ~gcControllerState~ 增加 ~memoryLimit~ ，以及相应的 read/write 接口。
+
+[[https://go-review.googlesource.com/c/go/+/353989][353989]] 没看明白。
+
+[[https://go-review.googlesource.com/c/go/+/393400][393400]] 很奇怪到现在增加这么一个字符串解析功能。
+
+[[https://go-review.googlesource.com/c/go/+/394220][394220]] 在 ~memstate~ 里面增加 ~totalAlloc~, ~totalFree~ 两个 field。
+
+[[https://go-review.googlesource.com/c/go/+/394221][394221]] 重构 ~heapGoalInternal~ 。
+
+[[https://go-review.googlesource.com/c/go/+/393402][393402]]
+
+[[https://go-review.googlesource.com/c/go/+/397018][397018]] provides SetMemoryLimit api.
+
+[[https://go-review.googlesource.com/c/go/+/397015][397015]]
+
+[[https://go-review.googlesource.com/c/go/+/397016][397016]] 实现一个异步队列。
+
+[[https://go-review.googlesource.com/c/go/+/397017][397017]] 这个 commit 解答了问题「谁执行 mem limit 相关的清理工作？」
+答案是 ~h.pages.scavenge(bytesToScavenge)~ 这里 ~bytesToScavenge~ 是由 memory limit 和 gcPercentGoal 共同决定的。
+
+
