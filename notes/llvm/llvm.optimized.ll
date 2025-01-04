@@ -30,7 +30,7 @@ entry:
   call void @llvm.lifetime.end.p0(i64 -1, ptr nonnull %"@_key")
   call void @llvm.lifetime.start.p0(i64 -1, ptr nonnull %len)
   store i64 0, ptr %len, align 8
-  %for_each_map_elem = call i64 inttoptr (i64 164 to ptr)(ptr nonnull @AT_, ptr nonnull @map_len_cb, ptr nonnull %len, i64 0)
+                          %for_each_map_elem = call i64 inttoptr (i64 164 to ptr)(ptr nonnull @AT_, ptr nonnull @map_len_cb, ptr nonnull %len, i64 0)
   %1 = load i64, ptr %len, align 8
   call void @llvm.lifetime.end.p0(i64 -1, ptr nonnull %len)
   %2 = icmp sgt i64 %1, 1
@@ -55,7 +55,7 @@ declare void @llvm.lifetime.start.p0(i64 immarg %0, ptr nocapture %1) #0
 
 ; Function Attrs: mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: readwrite)
 declare void @llvm.lifetime.end.p0(i64 immarg %0, ptr nocapture %1) #0
-
+                                                        
 ; Function Attrs: mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite)
 define internal noundef i64 @map_len_cb(ptr nocapture readnone %0, ptr nocapture readnone %1, ptr nocapture readnone %2, ptr nocapture %3) #1 section ".text" !dbg !59 {
   %5 = load i64, ptr %3, align 8

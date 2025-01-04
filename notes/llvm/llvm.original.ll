@@ -40,7 +40,7 @@ entry:
   call void @llvm.lifetime.end.p0(i64 -1, ptr %"@_key")
   call void @llvm.lifetime.start.p0(i64 -1, ptr %len)
   store i64 0, ptr %len, align 8
-  %for_each_map_elem = call i64 inttoptr (i64 164 to ptr)(ptr @AT_, ptr @map_len_cb, ptr %len, i64 0)
+                  %for_each_map_elem = call i64 inttoptr (i64 164 to ptr)(ptr @AT_, ptr @map_len_cb, ptr %len, i64 0)
   %1 = load i64, ptr %len, align 8
   call void @llvm.lifetime.end.p0(i64 -1, ptr %len)
   %2 = icmp sgt i64 %1, 1
@@ -66,7 +66,7 @@ if_end:                                           ; preds = %if_body, %entry
 declare void @llvm.lifetime.start.p0(i64 immarg %0, ptr nocapture %1) #1
 
 ; Function Attrs: nocallback nofree nosync nounwind willreturn memory(argmem: readwrite)
-declare void @llvm.lifetime.end.p0(i64 immarg %0, ptr nocapture %1) #1
+declare void @ll        vm.lifetime.end.p0(i64 immarg %0, ptr nocapture %1) #1
 
 define internal i64 @map_len_cb(ptr %0, ptr %1, ptr %2, ptr %3) section ".text" !dbg !59 {
   %5 = load i64, ptr %3, align 8
