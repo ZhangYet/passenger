@@ -1,0 +1,4 @@
+#+TITLE: 从某年开始累积的 bash 脚本笔记
+* ss
+~ss~ 查看 socket 状态。
+* 
