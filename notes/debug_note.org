@@ -1,0 +1,19 @@
+#+TITLE: crash debug 笔记
+* 目前发现
+崩溃时候的 RIP 是：
+#+BEGIN_SRC asm
+	  0010:exc_page_fault+0x1a/0x190
+#+END_SRC
+
+对应的地址是：
+#+BEGIN_SRC asm
+	  0xffffffff8209a99a <+26>:    mov    %gs:0x32f80,%rax
+#+END_SRC
+
+对应的源代码是：sbuild/source/arch/x86/include/asm/current.h
+
+os-agent 版本是 0.7.9-0shopee1.
+
+错误日志是 ~handle_stack_overflow~ 打的。
+
+从 sbuild/source/arch/x86/kernel/traps.c:378 ~exc_double_fault~ 进入了 ~handle_stack_overflow~
