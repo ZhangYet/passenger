@@ -1,0 +1,7 @@
+我这个播客是用 Bilibili 的 indextts 模型生成的语音。上周这个模型出第二代了，大家可以看看他们的 Demo ，模型生成了《让子弹飞》的英文配音，语气还挺惟妙惟肖的。我周二晚上尝试跑了一下，结果内存不够。所以我还是只能用第一代的模型。
+
+虽然新模型没有用上，但是我这周试了一下 ChatGPT 5 生成播客封面，我还挺喜欢的，以为这个播客就用这个封面了。
+
+indextt2 生成的 Demo：https://index-tts.github.io/index-tts2.github.io/
+《思索死刑》：https://book.douban.com/subject/30142301/
+《为废除死刑而战》（另译：《为什么要废除死刑》）：https://book.douban.com/subject/1323956/
