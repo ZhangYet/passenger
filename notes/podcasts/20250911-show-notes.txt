@@ -2,6 +2,8 @@
 
 这周我们读的书是加缪的《思索死刑》。虽然我并不同意加缪关于废死的看法，但我还是很愉快地读完了这本小册子。读的过程就像我跟加缪吵了一架那样，就当一场思维体操吧。
 
+节目文稿：https://github.com/ZhangYet/passenger/blob/master/notes/podcasts/20250911-reflections-on-the-guillotine.txt
+
 indextt2 生成的 Demo：https://index-tts.github.io/index-tts2.github.io/
 《思索死刑》：https://book.douban.com/subject/30142301/
 《为废除死刑而战》（另译：《为什么要废除死刑》）：https://book.douban.com/subject/1323956/
