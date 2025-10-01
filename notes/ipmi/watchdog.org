@@ -1,0 +1,42 @@
+* 源码阅读笔记
+
+#+BEGIN_SRC bash
+/usr/sbin/bmc-watchdog -d -u 4 -p 2 -a 1 -F -P -L -S -O -i 900 -e 60
+#+END_SRC
+
+-d: --daemon
+-u: --timer-use Set timer used, 4 sec
+-p: --pre-timeout-interrupt Set pre-timeout interrupt
+-a: --timeout-action 这里是 Hard Reset
+-F: --clear-bios-frb2 Clear BIOS FRB2 Timer Use
+-P: --clear-bios-post Clear BIOS POST Timer Use
+-L: --clear-os-load Clear OS load Timer Use
+-S: --clear-sms-os Clear SMS/OS Timer Use
+-O: --clear-oem Clear OEM Timer Use
+-i: --initial-countdown Set initital countdown in seconds
+-e: --reset-period Specify time interval before resetting timer
+
+* _init_bmc_watchdog
+
+workaround_flags 应该是0.
+
+创建 ipmi_ctx , 这里只赋值了 ~ipmi_ctx->magic~ ~ipmi_ctx->type~
+还是 ~IPMI_DEVICE_UNKNOWN~ .
+
+~ipmi_ctx_find_inband()~ 打开 watchdog 设备，确定设备类型，
+就是按顺序打开各种设备，直到找到真正的设备类型。然后会继续填充
+~ipmi_ctx~ .
+
+备注：上次找过如何确定 bmc-watchdong 设备类型的方法。
+已经忘记了，后续还是要搞回来。
+
+* _daemon_cmd
+~reset_period~ 是60秒。
+
+~daemonize_common~ 运行进程（之后执行的是哪个进程）
+
+setup ~_signal_handler_callback~ 好像没干啥。
+
+~_init_bmc_watchdog~ 见上。
+
+~_daemon_setup~:
