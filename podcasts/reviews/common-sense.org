@@ -1,0 +1,9 @@
+#+TITLE: 常识：我想谈谈公共知识分子
+#+AUTHOR: Dantezy <zhangyet@gmail.com>
+#+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
+#+OPTIONS: ^:nil
+
+如果大家有留意过本节目最初的十几期，以及第一期更新的日期，大家都会知道本节目是在蹭谁的流量。没听过没关系，其实大家看节目名字就知道。
+既然如此，我其实是有义务去讲一下这个被蹭了那么久热度的公共知识分子梁某道的书。
+
+今天就给大家讲讲梁某道的《常识》。
