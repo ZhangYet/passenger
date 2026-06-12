@@ -101,6 +101,17 @@
 
 (square-tree-my-map tx)
 
+;; exec 2.32
+
+(define (subsets x)
+  (if (null? x)
+      (list x)
+      (let ((rest (subsets (cdr x))))
+	(append rest (map (lambda (s) (cons (car x) s)) rest)))))
+
+(define x (list 1 2 3))
+(subsets x)
+
 (define (filter predicate sequence)
   (cond ((null? sequence) '())
 	((predicate (car sequence))
