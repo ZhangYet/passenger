@@ -88,6 +88,19 @@
 (square-tree tx)
 (square-tree-map tx)
 
+(define (tree-map op tree)
+  (cond ((null? tree) '())
+	((not (pair? tree)) (op tree))
+	(else (cons (tree-map op (car tree))
+		    (tree-map op (cdr tree))))))
+
+;; exec 2.31
+(define (square x) (* x x))
+(define (square-tree-my-map tree)
+  (tree-map square tree))
+
+(square-tree-my-map tx)
+
 (define (filter predicate sequence)
   (cond ((null? sequence) '())
 	((predicate (car sequence))
