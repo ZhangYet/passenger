@@ -19,8 +19,88 @@
 
 ;; exec 2.28
 (define (fringe x)
-  (cond ((not (pair? x)) (list x))
+  (cond ((null? x) '())
+	((not (pair? x)) (list x))
 	(else (append (fringe (car x))
 		      (fringe (cdr x))))))
 
 (fringe x)
+(fringe (list x x))
+
+
+;; exec 2.29
+(define (make-mobile left right)
+  (list left right))
+
+(define (make-branch length structure)
+  (list length structure))
+
+(define (left-branch x)
+  (car x))
+
+(define (right-branch x)
+  (cadr x))
+
+(define (branch-length x)
+  (car x))
+
+(define (branch-structure x)
+  (cadr x))
+
+(define (branch-weight branch)
+  (total-weight (branch-structure branch)))
+
+(define (total-weight mobile)
+  (if (not (pair? mobile))
+      mobile                           ; 是重量
+      (+ (branch-weight (left-branch mobile))
+         (branch-weight (right-branch mobile)))))
+
+(define m2 (make-mobile (make-branch 2 4) (make-branch 1 5)))
+(define m1 (make-mobile (make-branch 5 3) (make-branch 3 m2)))
+
+(total-weight m1)
+
+;; notes
+(define (scale-tree tree factor)
+  (cond ((null? tree) '())
+	((not (pair? tree)) (* tree factor))
+	(else (cons (scale-tree (car tree) factor)
+		    (scale-tree (cdr tree) factor)))))
+
+(define tx (list 1 (list 2 (list 3 4) 5) (list 6 7)))
+(scale-tree tx 10)
+
+;; exec 2.30
+(define (square-tree tree)
+  (cond ((null? tree) '())
+	((not (pair? tree)) (* tree tree))
+	(else (cons (square-tree (car tree))
+		    (square-tree (cdr tree))))))
+
+(define (square-tree-map tree)
+  (map (lambda (sub-tree)
+	 (if (pair? sub-tree)
+	     (square-tree-map sub-tree)
+	     (* sub-tree sub-tree)))
+       tree))
+
+(square-tree tx)
+(square-tree-map tx)
+
+(define (filter predicate sequence)
+  (cond ((null? sequence) '())
+	((predicate (car sequence))
+	 (cons (car sequence)
+	       (filter predicate (cdr sequence))))
+	(else (filter predicate (cdr sequence)))))
+
+(filter odd? (list 1 2 3 4 5))
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+	  (accumulate op initial (cdr sequence)))))
+
+(accumulate + 0 (list 1 2 3 4 5 6))
