@@ -128,3 +128,17 @@
 	  (accumulate op initial (cdr sequence)))))
 
 (accumulate + 0 (list 1 2 3 4 5 6))
+
+;; exec 2.33
+(define (my-map p seq)
+  (accumulate (lambda (x y) (cons (p x) y)) '() seq))
+
+(my-map square (list 1 2 3 4))
+
+(define (my-append seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (my-length seq)
+  (accumulate (lambda (_ y) (+ 1 y)) 0 seq))
+
+(my-length (list 1 2 3 4))
