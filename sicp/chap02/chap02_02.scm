@@ -142,3 +142,10 @@
   (accumulate (lambda (_ y) (+ 1 y)) 0 seq))
 
 (my-length (list 1 2 3 4))
+
+;; exec 2.34
+(define (horner-eval x c-seq)
+  (accumulate (lambda (this higher) (+ this (* higher x)))
+	      0 c-seq))
+
+(horner-eval 2 (list 1 3 0 5 0 1))
