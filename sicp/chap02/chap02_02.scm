@@ -149,3 +149,13 @@
 	      0 c-seq))
 
 (horner-eval 2 (list 1 3 0 5 0 1))
+
+(define (poly-eval x c-seq)
+  (define (terms seq n)
+    (if (null? seq)
+        '()
+        (cons (* (car seq) (expt x n))
+              (terms (cdr seq) (+ n 1)))))
+  (accumulate + 0 (terms c-seq 0)))
+
+(poly-eval 2 (list 1 3 0 5 0 1))
