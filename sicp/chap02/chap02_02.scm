@@ -160,14 +160,14 @@
 
 (poly-eval 2 (list 1 3 0 5 0 1))
 
-;; exec 2.36
+;; exec 2.35
 (define (count-levevs-a x)
   (accumulate + 0 (map (lambda (elem)
 			 (if (not (pair? elem))
 			     1
 			     (count-levevs-a elem))) x)))
 
-;; exec 2.37
+;; exec 2.36
 (define (accumulate-n op init seqs)
   (if (null? (car seqs))
       '()
@@ -176,7 +176,7 @@
 
 (accumulate-n + 0 (list (list 1 2 3) (list 4 5 6) (list 7 8 9)))
 
-;; exec 2.38
+;; exec 2.37
 (define (dot-product v w)
   (accumulate + 0 (map * v w)))
 
@@ -202,3 +202,27 @@
 (define m2 (list (list 1 1 1 1) (list 1 1 1 1) (list 1 1 1 1)))
 
 (matrix-*-matrix m (transpose m))
+
+;; exec 2.38
+(define fold-right accumulate)
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+	result
+	(iter (op result (car rest)) (cdr rest))))
+  (iter initial sequence))
+
+(fold-right / 1 (list 1 2 3)) ;; 3/2
+(fold-left / 1 (list 1 2 3))  ;; 1/6
+
+(fold-right list '() (list 1 2 3)) ;; (1 (2 (3 (()))))
+(fold-left list '() (list 1 2 3))  ;; (((() 1) 2) 3)
+
+;; exec 2.39
+(define nil '())
+
+(define (reverse-fr sequence)
+  (fold-right (lambda (x y) (append y (list x))) nil sequence))
+
+(define (reverse-fl sequence)
+  (fold-left (lambda (x y) (cons y x)) nil sequence))
