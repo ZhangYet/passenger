@@ -175,3 +175,30 @@
 	    (accumulate-n op init (map cdr seqs)))))
 
 (accumulate-n + 0 (list (list 1 2 3) (list 4 5 6) (list 7 8 9)))
+
+;; exec 2.38
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+(dot-product '(1 2 3) '(1 2 3))
+
+(define (matrix-*-vector m v)
+  (map (lambda (row) (dot-product v row)) m))
+
+(define m (list (list 1 2 3) (list 4 5 6) (list 7 8 9)))
+
+(matrix-*-vector m (list 10 11 12))
+
+(define (transpose m)
+  (accumulate-n (lambda (x y) (cons x y)) '() m))
+
+(transpose m)
+
+(define (matrix-*-matrix m n)
+  (let ((col (transpose n)))
+    (map (lambda (x) (matrix-*-vector col x)) m)))
+
+(define m1 (list (list 1 1 1) (list 1 1 1) (list 1 1 1)))
+(define m2 (list (list 1 1 1 1) (list 1 1 1 1) (list 1 1 1 1)))
+
+(matrix-*-matrix m (transpose m))
