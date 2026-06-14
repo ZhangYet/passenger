@@ -159,3 +159,12 @@
   (accumulate + 0 (terms c-seq 0)))
 
 (poly-eval 2 (list 1 3 0 5 0 1))
+
+;; exec 2.36
+(define (count-levevs-a x)
+  (accumulate + 0 (map (lambda (elem)
+			 (if (not (pair? elem))
+			     1
+			     (count-levevs-a elem))) x)))
+
+;;
