@@ -374,19 +374,55 @@
 	      (decode-1 (cdr bits) next-branch)))))
   (decode-1 bits tree))
 
-;; --- huffman tree example from Figure 2.18 ---
+(define (adjoin-set x set)
+  (cond ((null? set) (list x))
+	((< (weight x) (weight (car set))) (cons x set))
+	(else (cons (car set)
+		    (adjoin-set x (cdr set))))))
 
-(define sample-tree
-  (make-code-tree (make-code-tree (make-leaf 'A 8)
-				  (make-leaf 'B 3))
-		  (make-code-tree (make-code-tree (make-leaf 'C 1)
-						  (make-leaf 'D 1))
-				  (make-code-tree (make-code-tree (make-leaf 'E 1)
-								 (make-leaf 'F 1))
-						  (make-code-tree (make-leaf 'G 1)
-								 (make-leaf 'H 1))))))
+(define (make-leaf-set pairs)
+  (if (null? pairs) '()
+      (let ((pair (car pairs)))
+	(adjoin-set (make-leaf (car pair) (cadr pair))
+		    (make-leaf-set (cdr pairs))))))
 
-;; bit sequence 0 1 1 0 0 1 0 1 0 1 1 1 0 should decode to (A D A B B C A)
-(display "decode: ")
-(display (decode '(0 1 1 0 0 1 0 1 0 1 1 1 0) sample-tree))
-(newline)
+;; exec 2.67
+(define exec-tree
+  (make-code-tree (make-leaf 'A 4)
+		  (make-code-tree
+		   (make-leaf 'B 2)
+		   (make-code-tree (make-leaf 'D 1)
+				   (make-leaf 'C 1)))))
+
+(define simple-message '(0 1 1 0 0 1 0 1 0 1 1 1 0))
+
+(decode simple-message exec-tree) ;; A D A B B C A
+
+;; exec 2.68
+(define (in-set? sym symbols)
+  (cond ((null? symbols) #f)
+	((eq? sym (car symbols)) #t)
+	(else (in-set? sym (cdr symbols)))))
+
+(define (encode-symbol sym tree)
+  (cond ((not (in-set? sym (symbols tree)))
+	 (error "unknown symbol -- ENCODE-SYMBOL" sym))
+	((leaf? tree) '())
+	((in-set? sym (symbols (left-branch tree)))
+	 (cons 0
+	       (encode-symbol sym (left-branch tree))))
+	(else
+	 (cons 1
+	       (encode-symbol sym (right-branch tree))))))
+
+(encode-symbol 'E exec-tree)
+
+(define (encode message tree)
+  (if (null? message) '()
+      (append (encode-symbol (car message) tree)
+	      (encode (cdr message) tree))))
+
+(define m (decode simple-message exec-tree))
+(encode m exec-tree)
+
+;; exec 2.69
