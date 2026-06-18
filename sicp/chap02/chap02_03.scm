@@ -249,3 +249,144 @@
 		(cond ((= x1 x2) (cons x1 (union-set (cdr set1) (cdr set2))))
 		      ((> x1 x2) (cons x2 (union-set set1 (cdr set2))))
 		      ((< x1 x2) (cons x1 (union-set (cdr set1) set2))))))))
+
+;; tree
+(define (entry tree) (car tree))
+(define (left-branch tree) (cadr tree))
+(define (right-branch tree) (caddr tree))
+(define (make-tree entry left right)
+  (list entry left right))
+
+(define (element-of-set? x set)
+  (cond ((null? set) #f)
+	((= x (entry set)) #t)
+	((< x (entry set)) (element-of-set? x (left-branch set)))
+	((> x (entry set)) (element-of-set? x (right-branch set)))))
+
+;; exec 2.63
+(define t1 (make-tree 3 (make-tree 1 '() '()) (make-tree 5 '() '())))
+(define t2 (make-tree 9 '() (make-tree 11 '() '())))
+(define t (make-tree 7 t1 t2))
+
+(define (tree->list-1 tree)
+  (if (null? tree)
+      '()
+      (append (tree->list-1 (left-branch tree))
+	      (cons (entry tree)
+		    (tree->list-1 (right-branch tree))))))
+
+(tree->list-1 t)
+
+(define (tree->list-2 tree)
+  (define (copy-to-list tree result-list)
+    (if (null? tree)
+	result-list
+	(copy-to-list (left-branch tree)
+		      (cons (entry tree)
+			    (copy-to-list (right-branch tree)
+					  result-list)))))
+  (copy-to-list tree '()))
+
+(tree->list-2 t)
+;; a) 两个过程生成的列表相同，都生成升序列表；(right)
+;; b) 时间复杂度相同，但是第二个迭代的会更快；(wrong)
+
+;; exec 2.64
+(define (partial-tree elts n)
+  (if (= n 0)
+      (cons '() elts)
+      (let ((left-size (quotient (- n 1) 2)))
+	(let ((left-result (partial-tree elts left-size)))
+	  (let ((left-tree (car left-result))
+		(non-left-elts (cdr left-result))
+		(right-size (- n (+ left-size 1))))
+	    (let ((this-entry (car non-left-elts))
+		  (right-result (partial-tree (cdr non-left-elts) right-size)))
+	      (let ((right-tree (car right-result))
+		    (remaining-elts (cdr right-result)))
+		(cons (make-tree this-entry left-tree right-tree)
+		      remaining-elts))))))))
+
+(define (list->tree elements)
+  (car (partial-tree elements (length elements))))
+
+;; a) partial-tree 不断平分列表，最后到空列表再从叶节点构造树，所以几乎每个树都是平衡的。(1 3 5 7 9 11) 生成的树是 (5 (1 '() (3 '() '())) (9 (7 '() '()) (11 '() '()))); （right）
+;; b) O(n*log(n)) （wrong）
+
+;; exec 2.65
+;; 1. tree->list-2 把两棵树转成有序列表 — O(n)
+;; 2. 用 2.62 的 union-set / 2.61 的 intersection-set（有序列表版本）合并 — O(n)
+;; 3. list->tree 把结果转回平衡树 — O(n)
+;;
+;; 具体代码跳过了
+
+;; exec 2.66
+(define (lookup key records)
+  (cond ((null? records) #f)
+	((= key (entry records))
+	 (entry records))
+	((< key (entry records))
+	 (lookup key (left-branch records)))
+	((> key (entry records))
+	 (lookup key (right-branch records)))))
+
+;; sec 2.3.4
+(define (make-leaf symbol weight)
+  (list 'leaf symbol weight))
+
+(define (leaf? obj)
+  (eq? (car obj) 'leaf))
+
+(define (symbol-leaf x) (cadr x))
+(define (weight-leaf x) (caddr x))
+
+(define (symbols tree)
+  (if (leaf? tree)
+      (list (symbol-leaf tree))
+      (caddr tree)))
+
+(define (weight tree)
+  (if (leaf? tree)
+      (weight-leaf tree)
+      (cadddr tree)))
+
+(define (left-branch tree) (car tree))
+(define (right-branch tree) (cadr tree))
+
+(define (make-code-tree left right)
+  (list left
+	right
+	(append (symbols left) (symbols right))
+	(+ (weight left) (weight right))))
+
+(define (choose-branch bit branch)
+  (cond ((= bit 0) (left-branch branch))
+	((= bit 1) (right-branch branch))
+	(else (error "bad-bit -- CHOOSE-BRANCH" bit))))
+
+(define (decode bits tree)
+  (define (decode-1 bits current-branch)
+    (if (null? bits) '()
+	(let ((next-branch (choose-branch (car bits) current-branch)))
+	  (if (leaf? next-branch)
+	      (cons (symbol-leaf next-branch)
+		    (decode-1 (cdr bits) tree))
+	      (decode-1 (cdr bits) next-branch)))))
+  (decode-1 bits tree))
+
+;; --- huffman tree example from Figure 2.18 ---
+
+(define sample-tree
+  (make-code-tree (make-code-tree (make-leaf 'A 8)
+				  (make-leaf 'B 3))
+		  (make-code-tree (make-code-tree (make-leaf 'C 1)
+						  (make-leaf 'D 1))
+				  (make-code-tree (make-code-tree (make-leaf 'E 1)
+								 (make-leaf 'F 1))
+						  (make-code-tree (make-leaf 'G 1)
+								 (make-leaf 'H 1))))))
+
+;; bit sequence 0 1 1 0 0 1 0 1 0 1 1 1 0 should decode to (A D A B B C A)
+(display "decode: ")
+(display (decode '(0 1 1 0 0 1 0 1 0 1 1 1 0) sample-tree))
+(newline)
