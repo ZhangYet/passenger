@@ -464,3 +464,26 @@
 (display "bits:    ") (display bits-269) (newline)
 (display "decode:  ") (display (decode bits-269 tree-269)) (newline)
 (display "WPL:     ") (display (weighted-path-length tree-269)) (newline)  ;; should be 44
+
+;; exec 2.70
+(define table (list
+	       (list 'A 2)
+	       (list 'NA 16)
+	       (list 'BOOM 1)
+	       (list 'SHA 3)
+	       (list 'GET 2)
+	       (list 'YIP 9)
+	       (list 'JOB 2)
+	       (list 'WAH 1)))
+(define lyric-tree (generate-huffman-tree table))
+(define lyric '(GET A JOB SHA NA NA NA))
+
+(encode lyric lyric-tree)
+
+;; exec 2.71
+;; n=5, 最频繁: 1位，最低频: 4位
+;; n=10, 最频繁: 1位，最低频: 9位
+
+;; exec 2.72
+;; 编码最频繁的符号：\theta(n) ，因为要检查当前符号是否在符号表中
+;; 编码最不频繁的符号: \theta(n^2)
