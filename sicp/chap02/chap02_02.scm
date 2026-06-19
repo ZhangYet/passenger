@@ -1,0 +1,270 @@
+;; exec 2.26
+(define x (list 1 2 3))
+(define y (list 4 5 6))
+(append x y) ; (1 2 3 4 5 6)
+(cons x y)   ; ((1 2 3) 4 5 6)
+(list x y)   ; ((1 2 3) (4 5 6))
+(car x)      ; 1
+
+;; exec 2.27
+(define x (list (list 1 2) (list 3 4)))
+
+(define (deep-reverse x)
+  (cond ((null? x) '())
+	((not (pair? x)) x)
+	(else (append (deep-reverse (cdr x))
+		      (list (deep-reverse (car x)))))))
+
+(deep-reverse x)
+
+;; exec 2.28
+(define (fringe x)
+  (cond ((null? x) '())
+	((not (pair? x)) (list x))
+	(else (append (fringe (car x))
+		      (fringe (cdr x))))))
+
+(fringe x)
+(fringe (list x x))
+
+
+;; exec 2.29
+(define (make-mobile left right)
+  (list left right))
+
+(define (make-branch length structure)
+  (list length structure))
+
+(define (left-branch x)
+  (car x))
+
+(define (right-branch x)
+  (cadr x))
+
+(define (branch-length x)
+  (car x))
+
+(define (branch-structure x)
+  (cadr x))
+
+(define (branch-weight branch)
+  (total-weight (branch-structure branch)))
+
+(define (total-weight mobile)
+  (if (not (pair? mobile))
+      mobile                           ; 是重量
+      (+ (branch-weight (left-branch mobile))
+         (branch-weight (right-branch mobile)))))
+
+(define m2 (make-mobile (make-branch 2 4) (make-branch 1 5)))
+(define m1 (make-mobile (make-branch 5 3) (make-branch 3 m2)))
+
+(total-weight m1)
+
+;; notes
+(define (scale-tree tree factor)
+  (cond ((null? tree) '())
+	((not (pair? tree)) (* tree factor))
+	(else (cons (scale-tree (car tree) factor)
+		    (scale-tree (cdr tree) factor)))))
+
+(define tx (list 1 (list 2 (list 3 4) 5) (list 6 7)))
+(scale-tree tx 10)
+
+;; exec 2.30
+(define (square-tree tree)
+  (cond ((null? tree) '())
+	((not (pair? tree)) (* tree tree))
+	(else (cons (square-tree (car tree))
+		    (square-tree (cdr tree))))))
+
+(define (square-tree-map tree)
+  (map (lambda (sub-tree)
+	 (if (pair? sub-tree)
+	     (square-tree-map sub-tree)
+	     (* sub-tree sub-tree)))
+       tree))
+
+(square-tree tx)
+(square-tree-map tx)
+
+(define (tree-map op tree)
+  (cond ((null? tree) '())
+	((not (pair? tree)) (op tree))
+	(else (cons (tree-map op (car tree))
+		    (tree-map op (cdr tree))))))
+
+;; exec 2.31
+(define (square x) (* x x))
+(define (square-tree-my-map tree)
+  (tree-map square tree))
+
+(square-tree-my-map tx)
+
+;; exec 2.32
+
+(define (subsets x)
+  (if (null? x)
+      (list x)
+      (let ((rest (subsets (cdr x))))
+	(append rest (map (lambda (s) (cons (car x) s)) rest)))))
+
+(define x (list 1 2 3))
+(subsets x)
+
+(define (filter predicate sequence)
+  (cond ((null? sequence) '())
+	((predicate (car sequence))
+	 (cons (car sequence)
+	       (filter predicate (cdr sequence))))
+	(else (filter predicate (cdr sequence)))))
+
+(filter odd? (list 1 2 3 4 5))
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+	  (accumulate op initial (cdr sequence)))))
+
+(accumulate + 0 (list 1 2 3 4 5 6))
+
+;; exec 2.33
+(define (my-map p seq)
+  (accumulate (lambda (x y) (cons (p x) y)) '() seq))
+
+(my-map square (list 1 2 3 4))
+
+(define (my-append seq1 seq2)
+  (accumulate cons seq2 seq1))
+
+(define (my-length seq)
+  (accumulate (lambda (_ y) (+ 1 y)) 0 seq))
+
+(my-length (list 1 2 3 4))
+
+;; exec 2.34
+(define (horner-eval x c-seq)
+  (accumulate (lambda (this higher) (+ this (* higher x)))
+	      0 c-seq))
+
+(horner-eval 2 (list 1 3 0 5 0 1))
+
+(define (poly-eval x c-seq)
+  (define (terms seq n)
+    (if (null? seq)
+        '()
+        (cons (* (car seq) (expt x n))
+              (terms (cdr seq) (+ n 1)))))
+  (accumulate + 0 (terms c-seq 0)))
+
+(poly-eval 2 (list 1 3 0 5 0 1))
+
+;; exec 2.35
+(define (count-levevs-a x)
+  (accumulate + 0 (map (lambda (elem)
+			 (if (not (pair? elem))
+			     1
+			     (count-levevs-a elem))) x)))
+
+;; exec 2.36
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      '()
+      (cons (accumulate op init (map car seqs))
+	    (accumulate-n op init (map cdr seqs)))))
+
+(accumulate-n + 0 (list (list 1 2 3) (list 4 5 6) (list 7 8 9)))
+
+;; exec 2.37
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+(dot-product '(1 2 3) '(1 2 3))
+
+(define (matrix-*-vector m v)
+  (map (lambda (row) (dot-product v row)) m))
+
+(define m (list (list 1 2 3) (list 4 5 6) (list 7 8 9)))
+
+(matrix-*-vector m (list 10 11 12))
+
+(define (transpose m)
+  (accumulate-n (lambda (x y) (cons x y)) '() m))
+
+(transpose m)
+
+(define (matrix-*-matrix m n)
+  (let ((col (transpose n)))
+    (map (lambda (x) (matrix-*-vector col x)) m)))
+
+(define m1 (list (list 1 1 1) (list 1 1 1) (list 1 1 1)))
+(define m2 (list (list 1 1 1 1) (list 1 1 1 1) (list 1 1 1 1)))
+
+(matrix-*-matrix m (transpose m))
+
+;; exec 2.38
+(define fold-right accumulate)
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+	result
+	(iter (op result (car rest)) (cdr rest))))
+  (iter initial sequence))
+
+(fold-right / 1 (list 1 2 3)) ;; 3/2
+(fold-left / 1 (list 1 2 3))  ;; 1/6
+
+(fold-right list '() (list 1 2 3)) ;; (1 (2 (3 (()))))
+(fold-left list '() (list 1 2 3))  ;; (((() 1) 2) 3)
+
+;; exec 2.39
+(define nil '())
+
+(define (reverse-fr sequence)
+  (fold-right (lambda (x y) (append y (list x))) nil sequence))
+
+(define (reverse-fl sequence)
+  (fold-left (lambda (x y) (cons y x)) nil sequence))
+
+;; exec 2.40
+(define (enumerate-interval low high)
+  (if (> low high)
+      nil
+      (cons low (enumerate-interval (+ low 1) high))))
+
+(define (flatmap proc seq)
+  (accumulate append nil (map proc seq)))
+
+(define (order? x)
+  (< (car x) (cadr x)))
+
+(define (prime? n)
+  (define (smallest-divisor n)
+    (find-divisor n 2))
+  (define (find-divisor n test-divisor)
+    (cond ((> (square test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          (else (find-divisor n (+ test-divisor 1)))))
+  (define (divides? a b)
+    (= (remainder b a) 0))
+  (= n (smallest-divisor n)))
+
+(define (uniq-pairs n)
+  (flatmap (lambda (i)
+	     (map (lambda (j) (list j i))
+		  (enumerate-interval 1 (- i 1))))
+	   (enumerate-interval 1 n)))
+
+(define (make-pair-sum pair)
+  (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))
+
+(define (prime-sum-pair? p)
+  (prime? (+ (car p) (cadr p))))
+
+(define (prime-sum-pair n)
+  (map make-pair-sum
+       (filter prime-sum-pair?
+	       (uniq-pairs n))))
+
+(prime-sum-pair 20)
