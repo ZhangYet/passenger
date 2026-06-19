@@ -415,8 +415,6 @@
 	 (cons 1
 	       (encode-symbol sym (right-branch tree))))))
 
-(encode-symbol 'E exec-tree)
-
 (define (encode message tree)
   (if (null? message) '()
       (append (encode-symbol (car message) tree)
@@ -426,3 +424,43 @@
 (encode m exec-tree)
 
 ;; exec 2.69
+(define (generate-huffman-tree pairs)
+  (successive-merge (make-leaf-set pairs)))
+
+(define (successive-merge leaves)
+  (if (null? (cdr leaves))
+      (car leaves)
+      (successive-merge
+       (adjoin-set (make-code-tree (car leaves) (cadr leaves))
+		   (cddr leaves)))))
+
+;; --- test ---
+
+;; helper: weighted path length (sum of freq * codelen for each symbol)
+(define (weighted-path-length tree)
+  (define (depth sym branch d)
+    (if (leaf? branch)
+	(if (eq? sym (symbol-leaf branch)) d 0)
+	(+ (depth sym (left-branch branch) (+ d 1))
+	   (depth sym (right-branch branch) (+ d 1)))))
+  (define (sum-pair pair tree)
+    (* (cadr pair) (depth (car pair) tree 0)))
+  (apply + (map (lambda (p) (sum-pair p tree))
+		(list (list 'A 8) (list 'B 3)
+		      (list 'C 1) (list 'D 1)
+		      (list 'E 1) (list 'F 1)
+		      (list 'G 1) (list 'H 1)))))
+
+(define book-pairs '((A 8) (B 3) (C 1) (D 1) (E 1) (F 1) (G 1) (H 1)))
+
+(define tree-269 (generate-huffman-tree book-pairs))
+
+;; round-trip encode/decode
+(define msg-269 '(A D A B B C A))
+(define bits-269 (encode msg-269 tree-269))
+
+(display "--- exec 2.69 ---") (newline)
+(display "message: ") (display msg-269) (newline)
+(display "bits:    ") (display bits-269) (newline)
+(display "decode:  ") (display (decode bits-269 tree-269)) (newline)
+(display "WPL:     ") (display (weighted-path-length tree-269)) (newline)  ;; should be 44
