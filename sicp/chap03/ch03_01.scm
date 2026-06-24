@@ -19,4 +19,25 @@
 			 (func m)))))
     dispatch))
 
-;;
+;; exec 3.3
+(define (make-account balance secret)
+  (define (withdraw amount)
+    (if (>= balance amount)
+	(begin (set! balance (- balance amount))
+	       balance)
+	"Insufficent funds"))
+  (define (deposit amount)
+    (set! balance (+ balance amount))
+    balance)
+  (define (dispatch sec m)
+    (if (not (eq? sec secret))
+	(error "Wrong secret -- MAKE-ACCOUNT" sec)
+	(cond ((eq? m 'withdraw) withdraw)
+	       ((eq? m 'deposit) deposit)
+	       (else "Unknown request -- MAKE-ACCOUNT" m))))
+  dispatch)
+
+
+(define acc (make-account 1000 'dasfweace))
+
+((acc 'dasfwece 'deposit) 10)
