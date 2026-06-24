@@ -41,3 +41,29 @@
 (define acc (make-account 1000 'dasfweace))
 
 ((acc 'dasfwece 'deposit) 10)
+
+;; exec 3.4
+(define (make-account balance secret)
+  (let ((thres 3))
+    (define (withdraw amount)
+      (if (>= balance amount)
+	  (begin (set! balance (- balance amount))
+		 balance)
+	  "Insufficent funds"))
+    (define (deposit amount)
+      (set! balance (+ balance amount))
+      balance)
+    (define (dispatch sec m)
+      (if (not (eq? sec secret))
+	  (begin (set! thres (- thres 1))
+		 (if (= thres 0)
+		     (error "CALL THE POLICE!!!!!"))
+		 (error "Wrong secret -- MAKE-ACCOUNT" sec))
+	  (begin
+	    (cond ((eq? m 'withdraw) withdraw)
+		  ((eq? m 'deposit) deposit)
+		  (else "Unknown request -- MAKE-ACCOUNT" m))
+	    (set! thres 3))))
+    dispatch))
+
+(define acc (make-account 100 'password))
