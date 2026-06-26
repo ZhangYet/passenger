@@ -67,3 +67,50 @@
     dispatch))
 
 (define acc (make-account 100 'password))
+
+;; exec 3.5
+(define (random-in-range low high)
+  (let ((range (- high low)))
+    (+ low (random range))))
+
+(define (estimate-integral xLow xHigh yLow yHigh P trials)
+  (define (iter trial-remaining trial-passed)
+    (let ((x (random-in-range xLow xHigh))
+	  (y (random-in-range yLow yHigh)))
+      (cond ((= trial-remaining 0) (/ trial-passed trials))
+	    ((P x y) (iter (- trial-remaining 1) (+ trial-passed 1.0)))
+	    (else (iter (- trial-remaining 1) trial-passed)))))
+  (iter trials 0))
+
+(define (square x) (* x x))
+
+(define (in-circle? x y)
+  (<= (+ (square x) (square y)) 1))
+
+
+
+(define (estimate-pi trials)
+  (* 4 (estimate-integral -1.0 1.0 -1.0 1.0 in-circle? trials)))
+
+(estimate-pi 10000000)
+;; We didn't do 3.5 right. We need to invoke monte-carlo
+
+;; exec 3.6
+(define (rand-update x)
+  (remainder (+ (* 173 x) 33) 101))
+
+(define rand
+  (let ((x 42))
+    (lambda (op)
+      (cond ((eq? op 'generate) (set! x (rand-update x)) x)
+	    ((eq? op 'reset) (lambda (new) (set! x new)))
+	    (else (error "Not supported op -- RAND" op))))))
+
+;; exec 3.8
+(define f
+  (let ((seen-zero? #f))
+    (lambda (x)
+      (cond (seen-zero? 0)
+	    ((= x 0) (begin (set! seen-zero? #t)
+			    x))
+	    (else x)))))
