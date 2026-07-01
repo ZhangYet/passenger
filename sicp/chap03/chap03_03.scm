@@ -34,3 +34,23 @@ w
 (define v (list 'a 'b 'c))
 
 (define w (mystery v))
+
+(define x (list 'a 'b))
+(define z1 (cons x x))
+(define z2 (cons (list 'a 'b) (list 'a 'b)))
+
+(define (set-to-wow! x)
+  (set-car! (car x) 'wow)
+  x)
+
+;; exec 3.16
+(define (count-pairs x)
+  (if (not (pair? x))
+      0
+      (+ (count-pairs (car x))
+	 (count-pairs (cdr x))
+	 1)))
+
+(define one (list 'a))
+(define three (cons one one))
+(define seven (cons three three ))
