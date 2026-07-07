@@ -94,9 +94,7 @@ w
 (delete-queue! q1)
 
 (define (print-queue queue)
-  (if (empty-queue? queue)
-      '()
-      (front-ptr queue)))
+  (display (front-ptr queue)))
 
 (print-queue q1)
 
