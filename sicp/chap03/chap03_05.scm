@@ -69,3 +69,24 @@
 ;; - 记忆化——stream-ref x 7 时 0~5 的 promise 已经算过并缓存，force 不再执行 show，只有 6、7 是新算的。
 ;; 建议注释补一句
 ;; (define x ...) 打印 0，这样答案才完整。
+
+;; 3.52
+(define sum 0)
+
+(define (accum x)
+  (set! sum (+ x sum))
+  sum)
+
+(define seq (stream-map accum (stream-enumerate-interval 1 20)))
+(define y (stream-filter even? seq))
+(define z (stream-filter (lambda (x) (= (remainder x 5) 0)) seq))
+(stream-ref y 7) ;; output 136
+(display-stream z) ;; output 10 15 45 55 105 120 190 210
+
+(display-stream seq)
+(display-stream z)
+
+;; sum 210
+;; 题目问"如果 delay 不记忆化（按 3.50/3.51 的朴素实现），sum 会是什么"。关键差异：
+;; - 记忆化时，y 和 z 共享已算的 seq 项，每个元素只被 accum 一次。
+;; - 不记忆化时，force 每次都重跑延迟过程。define z 时 seq 的 2、3 项会被重算（accum 2、accum 3 再执行一遍），所以 sum 会在每一步都偏大，最终不是 210，而是显著更大的值
