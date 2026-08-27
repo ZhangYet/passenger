@@ -48,6 +48,12 @@
 (define (display-stream s)
   (stream-for-each display-line s))
 
+(define (print-stream-n s n)
+  (if (or (= n 0) (stream-null? s))
+      'done
+      (begin (display-line (stream-car s))
+	     (print-stream-n (stream-cdr s) (- n 1)))))
+
 ;; (define s (stream-enumerate-interval 1 100))
 ;; (display-stream s)
 
@@ -90,3 +96,68 @@
 ;; 题目问"如果 delay 不记忆化（按 3.50/3.51 的朴素实现），sum 会是什么"。关键差异：
 ;; - 记忆化时，y 和 z 共享已算的 seq 项，每个元素只被 accum 一次。
 ;; - 不记忆化时，force 每次都重跑延迟过程。define z 时 seq 的 2、3 项会被重算（accum 2、accum 3 再执行一遍），所以 sum 会在每一步都偏大，最终不是 210，而是显著更大的值
+
+;; sec 3.5.2
+
+(define (integers-starting-from n)
+  (cons-stream n (integers-starting-from (+ n 1))))
+
+(define integers (integers-starting-from 1))
+
+(define (divisible? x y) (= (remainder x y) 0))
+
+(define no-sevens
+  (stream-filter (lambda (x) (not (divisible? x 7)))
+		 integers))
+
+(define (fibgen a b)
+  (cons-stream a (fibgen b (+ a b))))
+
+(define fibs (fibgen 0 1))
+
+(define (sieve stream)
+  (cons-stream
+   (stream-car stream)
+   (sieve (stream-filter
+	   (lambda (x)
+	     (not (divisible? x (stream-car stream))))
+	   (stream-cdr stream)))))
+
+(define primes (sieve (integers-starting-from 2)))
+
+(define ones (cons-stream 1 ones))
+
+(define (add-streams s1 s2)
+  (stream-map + s1 s2))
+
+(define integers (cons-stream 1 (add-streams ones integers)))
+
+(define fibs
+  (cons-stream 0
+	       (cons-stream 1
+			    (add-streams (stream-cdr fibs)
+					 fibs))))
+
+;; 3.53
+(define s (cons-stream 1 (add-streams s s))) ;; output {2^n}
+
+;; 3.54
+(define (mul-streams s1 s2)
+  (stream-map * s1 s2))
+
+(define factorials (cons-stream 1 (mul-streams factorials integers)))
+
+;; 3.55
+(define (partial-sums s)
+  (cons-stream
+   (stream-car s)
+   (stream-map + (partial-sums s) (stream-cdr s))))
+
+(define n (partial-sums integers))
+
+(print-stream-n n 5)
+
+(stream-ref n 0)
+(stream-ref n 1)
+(stream-ref n 2)
+(stream-ref n 3)
