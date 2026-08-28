@@ -161,3 +161,41 @@
 (stream-ref n 1)
 (stream-ref n 2)
 (stream-ref n 3)
+
+;; 3.56
+(define (merge s1 s2)
+  (cond ((stream-null? s1) s2)
+	((stream-null? s2) s1)
+	(else
+	 (let ((x1 (stream-car s1))
+	       (x2 (stream-car s2)))
+	   (cond ((< x1 x2)
+		  (cons-stream x1 (merge (stream-cdr s1) s2)))
+		 ((> x1 x2)
+		  (cons-stream x2 (merge s1 (stream-cdr s2))))
+	 (else
+	  (cons-stream x1 (merge (stream-cdr s1) (stream-cdr s2)))))))))
+
+(define (scale-stream stream factor)
+  (stream-map (lambda (x) (* x factor)) stream))
+
+(define S (cons-stream 1 (merge (scale-stream S 2)
+				(merge (scale-stream S 3)
+				       (scale-stream S 5)))))
+
+(print-stream-n S 7)
+
+;; 3.57
+;; With memo-proc: n addition
+;; Without memo-proc: increasing like fibs
+
+;; 3.58
+
+(define (expand num den radix)
+  (cons-stream
+   (quotient (* num radix) den)
+   (expand (remainder (* num radix) den) den radix)))
+
+(print-stream-n (expand 1 7 10) 10)
+
+(print-stream-n (expand 3 8 10) 10)
