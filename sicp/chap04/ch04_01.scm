@@ -158,3 +158,9 @@
 	    (make-if (cond-predicate first)
 		     (sequence->exp (cond-actions first))
 		     (expand-clauses rest))))))
+
+;; Exec 4.2
+;; a) 调整顺序之后先判断 application?
+;; application? '(define x 3) 会返回 true
+;; 所以调整顺序之后会把这个当成 application 处理， define 会被当成 operator
+;; b) 我不做了
