@@ -164,3 +164,10 @@
 ;; application? '(define x 3) 会返回 true
 ;; 所以调整顺序之后会把这个当成 application 处理， define 会被当成 operator
 ;; b) 我不做了
+
+;; Exec 4.3 TODO
+
+;; Exec 4.4 TODO
+
+;; Exec 4.5
+See https://wizardbook.wordpress.com/2010/12/26/exercise-4-5/
